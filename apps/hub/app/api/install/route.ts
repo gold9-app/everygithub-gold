@@ -34,7 +34,7 @@ export async function GET() {
     "echo.",
     "where node >nul 2>nul",
     "if errorlevel 1 (",
-    "  echo  Node.js not found. Installing via winget (1-2 min)...",
+    "  echo  Node.js not found. Installing via winget, 1-2 min...",
     '  winget install -e --id OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements --silent >> "%LOG%" 2>&1',
     '  set "PATH=%PATH%;%ProgramFiles%\\nodejs"',
     "  where node >nul 2>nul",
