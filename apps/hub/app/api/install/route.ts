@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
  * 본인 전용 설치 파일(everygithub-setup.cmd) 다운로드.
  * 파일 안에 1회용 설치 토큰이 들어 있어 실행만 하면 자동 페어링된다 (코드 입력 없음).
  * 흐름: Node 확인(없으면 winget 설치) → 사이트에서 cli.mjs 내려받기 → connect → 자동시작 등록
+ * 주의: cmd 파일은 한글이 깨지므로 ASCII 만 사용. 실패해도 창이 남고 setup.log 에 기록.
  */
 export async function GET() {
   const user = await currentUser();
@@ -18,41 +19,62 @@ export async function GET() {
   });
   const hub = (process.env.HUB_URL ?? "").replace(/\/$/, "");
 
-  const cmd = [
+  const lines = [
     "@echo off",
-    "chcp 65001 >nul",
     "setlocal",
     "title everygithub_gold setup",
     `set "HUB=${hub}"`,
     `set "TOKEN=${token}"`,
     'set "DIR=%LOCALAPPDATA%\\everygithub"',
     'if not exist "%DIR%" mkdir "%DIR%"',
+    'set "LOG=%DIR%\\setup.log"',
+    'echo ---- %DATE% %TIME% ---- >> "%LOG%"',
     "echo.",
-    "echo  ==== everygithub_gold 설치 ====",
+    "echo  ==== everygithub_gold setup ====",
     "echo.",
     "where node >nul 2>nul",
-    "if %errorlevel% neq 0 (",
-    "  echo  Node.js 가 없어 설치합니다 ^(1-2분^)...",
-    "  winget install -e --id OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements --silent",
+    "if errorlevel 1 (",
+    "  echo  Node.js not found. Installing via winget (1-2 min)...",
+    '  winget install -e --id OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements --silent >> "%LOG%" 2>&1',
     '  set "PATH=%PATH%;%ProgramFiles%\\nodejs"',
-    "  where node >nul 2>nul || (",
-    "    echo  자동 설치 실패. https://nodejs.org 에서 LTS 설치 후 이 파일을 다시 실행하세요.",
+    "  where node >nul 2>nul",
+    "  if errorlevel 1 (",
+    "    echo  Could not install Node.js automatically.",
+    "    echo  Install LTS from https://nodejs.org and run this file again.",
     "    start https://nodejs.org/",
-    "    pause & exit /b 1",
+    "    goto :fail",
     "  )",
     ")",
-    "echo  [1/3] 에이전트 내려받는 중...",
-    'curl -fsSL "%HUB%/agent/cli.mjs" -o "%DIR%\\cli.mjs" || (echo  다운로드 실패 & pause & exit /b 1)',
-    "echo  [2/3] 사이트와 연결하는 중...",
-    'node "%DIR%\\cli.mjs" connect "%TOKEN%" --hub "%HUB%" || (echo  연결 실패 - 사이트에서 설치 파일을 다시 받아 실행하세요. & pause & exit /b 1)',
-    "echo  [3/3] 백그라운드 실행 시작",
+    "for /f \"tokens=*\" %%v in ('node -v') do echo  Node %%v",
+    "echo  [1/3] Downloading agent...",
+    'curl -fsSL "%HUB%/agent/cli.mjs" -o "%DIR%\\cli.mjs" >> "%LOG%" 2>&1',
+    "if errorlevel 1 (",
+    "  echo  Download failed. Check internet connection.",
+    "  goto :fail",
+    ")",
+    "echo  [2/3] Connecting to site...",
+    'node "%DIR%\\cli.mjs" connect "%TOKEN%" --hub "%HUB%" >> "%LOG%" 2>&1',
+    "if errorlevel 1 (",
+    "  echo  Connect failed. Download a fresh setup file from the site and run again.",
+    "  goto :fail",
+    ")",
+    "echo  [3/3] Starting agent in background...",
     'start "" /min cmd /c "node "%DIR%\\cli.mjs" start > "%DIR%\\agent.log" 2>&1"',
     "echo.",
-    "echo  완료! 이 창은 닫아도 됩니다. 사이트에서 디바이스가 온라인으로 표시됩니다.",
-    "echo  (부팅 시 자동 시작이 등록되었습니다. 로그: %DIR%\\agent.log)",
-    "timeout /t 8 >nul",
-    "endlocal",
-  ].join("\r\n") + "\r\n";
+    "echo  DONE. You can close this window.",
+    "echo  The site will show this PC as online in a few seconds.",
+    "echo  Auto-start on boot is registered. Log: %DIR%\\agent.log",
+    "echo.",
+    "pause",
+    "exit /b 0",
+    ":fail",
+    "echo.",
+    "echo  FAILED. Details: %LOG%",
+    "echo.",
+    "pause",
+    "exit /b 1",
+  ];
+  const cmd = lines.join("\r\n") + "\r\n";
 
   return new NextResponse(cmd, {
     headers: {
