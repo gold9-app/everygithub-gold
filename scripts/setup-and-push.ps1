@@ -35,7 +35,10 @@ git log --oneline -1
 # 3) GitHub 푸시
 Write-Host "`n[3/3] GitHub 푸시" -ForegroundColor Cyan
 $remote = "https://github.com/gold9-app/everygithub-gold.git"
-git remote remove origin 2>$null
+git branch -M main
+$ErrorActionPreference = "Continue"
+git remote remove origin 2>&1 | Out-Null
+$ErrorActionPreference = "Stop"
 git remote add origin $remote
 # 원격에 README 초기 커밋이 있으므로 덮어씀 (최초 1회)
 git push -u origin main --force
