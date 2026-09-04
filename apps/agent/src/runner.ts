@@ -1,8 +1,9 @@
 import pc from "picocolors";
 import { runJob } from "@everygithub/core";
 import type { Job, JobEvent } from "@everygithub/protocol";
-import type { AgentConfig } from "./config";
 import type { HubClient } from "./hub-client";
+
+export interface RunSettings { workspacePath: string; anthropicApiKey?: string }
 
 function printEvent(e: JobEvent) {
   const tag = pc.dim(`[${e.step}]`);
@@ -16,7 +17,7 @@ function printEvent(e: JobEvent) {
 }
 
 /** 잡 하나를 실행하고 결과를 허브(있으면)와 콘솔에 보고 */
-export async function executeJob(job: Job, cfg: AgentConfig, hub?: HubClient) {
+export async function executeJob(job: Job, cfg: RunSettings, hub?: HubClient) {
   console.log(pc.cyan(`▶ ${job.pipeline}: ${job.source.url}`));
   const buffer: JobEvent[] = [];
   let flushTimer: NodeJS.Timeout | null = null;

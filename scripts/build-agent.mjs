@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 mkdirSync("apps/agent/dist", { recursive: true });
 await build({
   entryPoints: ["apps/agent/src/cli.ts"],
-  outfile: "apps/agent/dist/cli.js",
+  outfile: "apps/agent/dist/cli.mjs",
   bundle: true,
   platform: "node",
   target: "node20",

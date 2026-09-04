@@ -1,4 +1,4 @@
-import type { Job, JobEvent, PairRequest, PairResponse, StackInfo } from "@everygithub/protocol";
+import type { AgentSettings, Job, JobEvent, PairRequest, PairResponse, StackInfo } from "@everygithub/protocol";
 
 /** 허브 REST 클라이언트. 에이전트는 허브에 아웃바운드 요청만 한다. */
 export class HubClient {
@@ -19,6 +19,11 @@ export class HubClient {
 
   pair(input: PairRequest) {
     return this.req<PairResponse>("POST", "/api/agent/pair", input);
+  }
+
+  /** 사이트에서 설정한 값 (워크스페이스·API 키·정책) */
+  settings() {
+    return this.req<AgentSettings>("GET", "/api/agent/settings");
   }
 
   /** 다음 큐 잡을 가져오며 last_seen 갱신. 없으면 null */

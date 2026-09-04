@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { currentUser, supabaseServer } from "@/lib/supabase";
-import { AddLink, PairingCode, TelegramLink } from "./widgets";
+import { AddLink, InstallButton, TelegramLink, SettingsForm, DeviceRow } from "./widgets";
 
 export const dynamic = "force-dynamic";
 
@@ -12,34 +12,57 @@ export default async function Dashboard() {
     sb.from("devices").select("id,name,os,agent_version,workspace_path,last_seen").order("last_seen", { ascending: false }),
     sb.from("repos").select("id,owner,name,license,stack,updated_at").order("updated_at", { ascending: false }).limit(50),
     sb.from("jobs").select("id,source,pipeline,status,origin,created_at,repo_id").order("created_at", { ascending: false }).limit(20),
-    sb.from("profiles").select("telegram_chat_id").eq("id", user.id).maybeSingle(),
+    sb.from("profiles").select("telegram_chat_id,settings").eq("id", user.id).maybeSingle(),
   ]);
-  const online = (t: string | null) => t && Date.now() - new Date(t).getTime() < 60_000;
+  const online = (t: string | null) => Boolean(t && Date.now() - new Date(t).getTime() < 60_000);
+  const hasDevice = (devices?.length ?? 0) > 0;
+  const anyOnline = devices?.some((d) => online(d.last_seen)) ?? false;
+  const settings = (profile?.settings ?? {}) as { anthropicApiKey?: string; approve?: "auto" | "ask"; defaultWorkspace?: string };
 
   return (
     <>
+      {/* 온보딩: PC 연결 전에는 이것만 크게 */}
+      {!hasDevice && (
+        <section className="card hero-card">
+          <h2>1분 안에 시작하기</h2>
+          <ol className="steps">
+            <li><b>PC 연결 파일</b>을 내려받아 실행하세요. 설치·연결·자동 시작까지 알아서 됩니다.</li>
+            <li>끝나면 이 페이지에 PC 가 <span className="pill done">온라인</span> 으로 뜹니다.</li>
+            <li>그다음 아래에 깃허브 링크를 던지면 그 PC 에 클론됩니다.</li>
+          </ol>
+          <InstallButton />
+          <p className="mute">Windows 기준. Node.js 가 없으면 자동 설치를 시도합니다. 클론 폴더는 기본 <code>내 문서\everygithub</code> 이고 아래 설정에서 바꿀 수 있습니다.</p>
+        </section>
+      )}
+
       <section className="card">
         <h2>링크 던지기</h2>
-        <AddLink devices={(devices ?? []).map((d) => ({ id: d.id, name: d.name }))} />
-        <p className="mute">레포 · 브랜치 · 서브폴더 · PR · gist 링크 모두 가능. 실행은 선택한 PC 의 에이전트가 합니다.</p>
+        <AddLink devices={(devices ?? []).map((d) => ({ id: d.id, name: d.name }))} disabled={!anyOnline} />
+        <p className="mute">{anyOnline ? "레포 · 브랜치 · 서브폴더 · PR · gist 링크 모두 가능." : "PC 가 온라인이어야 실행됩니다."}</p>
       </section>
 
       <section className="card" id="devices">
-        <h2>디바이스</h2>
-        {devices?.length ? (
-          <table><thead><tr><th>이름</th><th>OS</th><th>워크스페이스</th><th>상태</th></tr></thead><tbody>
-            {devices.map((d) => (
-              <tr key={d.id}><td>{d.name} <span className="mute">v{d.agent_version}</span></td><td>{d.os}</td><td><code>{d.workspace_path}</code></td>
-                <td><span className={`pill ${online(d.last_seen) ? "done" : ""}`}>{online(d.last_seen) ? "온라인" : "오프라인"}</span></td></tr>
-            ))}
+        <div className="row" style={{ justifyContent: "space-between" }}>
+          <h2 style={{ margin: 0 }}>내 PC</h2>
+          {hasDevice && <InstallButton small />}
+        </div>
+        {hasDevice ? (
+          <table style={{ marginTop: 12 }}><thead><tr><th>이름</th><th>클론 폴더</th><th>상태</th><th></th></tr></thead><tbody>
+            {devices!.map((d) => <DeviceRow key={d.id} device={d} online={online(d.last_seen)} />)}
           </tbody></table>
-        ) : <p className="mute">아직 연결된 PC 가 없습니다.</p>}
-        <PairingCode />
+        ) : <p className="mute">아직 연결된 PC 가 없습니다. 위의 설치 파일을 실행하세요.</p>}
       </section>
 
       <section className="card" id="telegram">
         <h2>텔레그램</h2>
-        {profile?.telegram_chat_id ? <p>✔ 연결됨 — 봇에 깃허브 링크를 보내면 됩니다.</p> : <TelegramLink />}
+        {profile?.telegram_chat_id
+          ? <p>✔ 연결됨 — 봇에 깃허브 링크를 보내면 됩니다.</p>
+          : <><p className="mute">폰에서도 링크를 던지려면 연결하세요. 버튼 → 텔레그램 열림 → 시작 한 번이면 끝.</p><TelegramLink /></>}
+      </section>
+
+      <section className="card" id="settings">
+        <h2>설정</h2>
+        <SettingsForm initial={{ hasKey: Boolean(settings.anthropicApiKey), approve: settings.approve ?? "ask", defaultWorkspace: settings.defaultWorkspace ?? "" }} />
       </section>
 
       <section className="card">

@@ -11,15 +11,30 @@ export function getBot() {
   bot = new Bot(process.env.TELEGRAM_BOT_TOKEN!);
   const sb = supabaseAdmin();
 
+  const linkWithCode = async (chatId: string, code: string) => {
+    const { data } = await sb.from("channel_link_codes").select("*").eq("code", code).eq("channel", "telegram").is("used_at", null).maybeSingle();
+    if (!data || new Date(data.expires_at) < new Date()) return false;
+    await sb.from("profiles").update({ telegram_chat_id: chatId }).eq("id", data.user_id);
+    await sb.from("channel_link_codes").update({ used_at: new Date().toISOString() }).eq("code", code);
+    return true;
+  };
+
   const userByChat = async (chatId: string) => {
     const { data } = await sb.from("profiles").select("id").eq("telegram_chat_id", chatId).maybeSingle();
     return data?.id ?? null;
   };
 
+  /** 사이트의 [텔레그램 연결] 링크(t.me/bot?start=<code>)로 들어오면 코드가 payload 로 붙어 자동 연결 */
   bot.command("start", async (ctx) => {
-    const userId = await userByChat(String(ctx.chat.id));
+    const chatId = String(ctx.chat.id);
+    const payload = (ctx.match ?? "").trim();
+    if (payload) {
+      const ok = await linkWithCode(chatId, payload);
+      return ctx.reply(ok ? "✔ 연결 완료. 이제 깃허브 링크를 보내면 됩니다." : "연결 코드가 없거나 만료됐습니다. 사이트에서 [텔레그램 연결] 을 다시 눌러주세요.");
+    }
+    const userId = await userByChat(chatId);
     if (userId) return ctx.reply("연결돼 있습니다. 깃허브 링크를 보내면 PC 에 클론합니다.");
-    await ctx.reply("사이트에서 [텔레그램 연결] 을 눌러 받은 6자리 코드를 보내주세요.");
+    await ctx.reply("사이트 대시보드에서 [텔레그램 연결] 버튼을 눌러주세요.");
   });
 
   bot.command("status", async (ctx) => {
@@ -36,14 +51,11 @@ export function getBot() {
     let userId = await userByChat(chatId);
 
     // 연결 코드
-    if (!userId && /^\d{6}$/.test(text)) {
-      const { data: code } = await sb.from("channel_link_codes").select("*").eq("code", text).eq("channel", "telegram").is("used_at", null).maybeSingle();
-      if (!code || new Date(code.expires_at) < new Date()) return ctx.reply("코드가 없거나 만료됐습니다.");
-      await sb.from("profiles").update({ telegram_chat_id: chatId }).eq("id", code.user_id);
-      await sb.from("channel_link_codes").update({ used_at: new Date().toISOString() }).eq("code", text);
-      return ctx.reply("✔ 연결 완료. 이제 깃허브 링크를 보내면 됩니다.");
+    if (!userId && /^[A-Za-z0-9_-]{6,64}$/.test(text)) {
+      const ok = await linkWithCode(chatId, text);
+      return ctx.reply(ok ? "✔ 연결 완료. 이제 깃허브 링크를 보내면 됩니다." : "코드가 없거나 만료됐습니다.");
     }
-    if (!userId) return ctx.reply("먼저 사이트에서 발급한 6자리 연결 코드를 보내주세요.");
+    if (!userId) return ctx.reply("먼저 사이트 대시보드에서 [텔레그램 연결] 을 눌러주세요.");
 
     const url = extractGithubUrl(text);
     if (!url) return ctx.reply("깃허브 링크를 찾지 못했습니다.");

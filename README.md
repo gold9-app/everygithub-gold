@@ -34,14 +34,14 @@
 
 4. 배포 후 브라우저에서 `https://<배포주소>/api/telegram/setup?key=<TELEGRAM_WEBHOOK_SECRET>` 한 번 열기 → 웹훅 등록 완료
 
-## 사용자
+## 사용자 (질문 없음)
 
-1. 허브 접속 → GitHub 로그인 → **[+ 디바이스 추가]** → 6자리 코드
-2. PC 에서 `npx everygithub` (또는 `everygithub.exe`) → 폴더 경로 붙여넣기 → 코드 입력 → (선택) Claude API 키
-3. 대시보드 **[텔레그램 연결]** → 봇에 `/start` 후 코드 전송
-4. 이제 웹이든 텔레그램이든 링크만 던지면 됨. 에이전트 창은 켜 둔다 (`everygithub` = 데몬 시작)
+1. 허브 접속 → GitHub 로그인
+2. 대시보드 **[PC 연결 파일 받기]** → 내려받은 `everygithub-setup.cmd` 실행 → 끝 (설치·연결·부팅 시 자동 시작까지 자동)
+3. (선택) **[텔레그램 연결]** → 텔레그램 열리면 [시작] 한 번
+4. 이후 웹이든 텔레그램이든 링크만 던지면 됨. 클론 폴더·Claude API 키·승인 정책은 대시보드 **설정**에서 변경
 
-허브 없이 혼자 쓰기: `everygithub add https://github.com/owner/repo -p quick|docs|full|skill`
+허브 없이 혼자 쓰기: `node cli.mjs add https://github.com/owner/repo -p quick|docs|full|skill [-d 폴더]`
 
 ## 개발
 
@@ -49,7 +49,7 @@
 # 루트 = 에이전트 + 공용 패키지
 npm install
 npm run build                    # 에이전트 번들 + 허브용 protocol 복사
-npm run agent -- add https://github.com/owner/repo
+npm run agent -- add https://github.com/owner/repo   # 로컬 실행 (기본 폴더: 내 문서\everygithub)
 npm run typecheck
 
 # 허브 (별도 npm 프로젝트, Vercel Root Directory = apps/hub)
@@ -67,6 +67,7 @@ Windows exe: `bun build apps/agent/dist/cli.js --compile --outfile release/every
 - [x] URL 파싱 (repo / branch / subdir sparse / PR / commit / gist / release)
 - [x] clone → analyze(스택·라이선스·env 키·MCP/스킬 감지) → summary 카드
 - [x] 허브: GitHub 로그인, 디바이스 페어링, 잡 큐(폴링 claim), 이벤트 로그, 레포 아카이브, 공유 링크
-- [x] 텔레그램: 연결 코드, 링크 수신 → 파이프라인 버튼 → 잡 생성 → 완료 카드 회신
+- [x] 텔레그램: 딥링크 연결, 링크 수신 → 파이프라인 버튼 → 잡 생성 → 완료 카드 회신
+- [x] 무설정 온보딩: 설치 파일(everygithub-setup.cmd) 다운로드 → 자동 페어링·자동 시작, 설정은 전부 사이트에서
 - [ ] docs(AI 설명서) / install / test / dev / skill / mcp / claude_md / obsidian 스텝
 - [ ] 슬랙·디스코드 어댑터, 레포 워치·다이제스트, 실시간 로그 뷰

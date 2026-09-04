@@ -1,21 +1,22 @@
 {
   "name": "everygithub-gold",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "bin": { "everygithub": "./apps/agent/dist/cli.js" },
+  "bin": {
+    "everygithub": "./apps/agent/dist/cli.mjs"
+  },
   "scripts": {
     "build": "npm run build:agent && npm run sync:hub",
     "build:agent": "node scripts/build-agent.mjs",
     "sync:hub": "node scripts/sync-protocol.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "agent": "node apps/agent/dist/cli.js",
+    "agent": "node apps/agent/dist/cli.mjs",
     "hub": "cd apps/hub && npm run dev",
     "hub:install": "cd apps/hub && npm install",
     "hub:build": "npm run sync:hub && cd apps/hub && npm run build"
   },
   "dependencies": {
-    "@inquirer/prompts": "^7.0.0",
     "commander": "^12.1.0",
     "execa": "^9.4.0",
     "fast-glob": "^3.3.2",

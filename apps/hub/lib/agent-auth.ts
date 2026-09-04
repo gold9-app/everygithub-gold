@@ -13,6 +13,6 @@ export async function authDevice(req: Request) {
   const sb = supabaseAdmin();
   const { data } = await sb.from("devices").select("*").eq("token_hash", sha256(token)).maybeSingle();
   if (!data) return null;
-  void sb.from("devices").update({ last_seen: new Date().toISOString() }).eq("id", data.id);
+  await sb.from("devices").update({ last_seen: new Date().toISOString() }).eq("id", data.id);
   return data as { id: string; user_id: string; workspace_path: string; name: string };
 }

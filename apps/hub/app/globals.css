@@ -21,3 +21,7 @@ th { color:var(--mute); font-weight:500; }
 .pill.done { color:var(--ok); border-color:var(--ok); } .pill.failed { color:var(--bad); border-color:var(--bad); } .pill.running { color:var(--acc); border-color:var(--acc); }
 pre { background:#0b0d11; border:1px solid var(--line); border-radius:8px; padding:14px; overflow:auto; font-size:13px; }
 .hero { text-align:center; padding: 80px 0; } .hero h1 { font-size:34px; margin:0 0 10px; } .hero p { color:var(--mute); margin:0 0 26px; }
+.hero-card { border-color: var(--acc); }
+.steps { margin: 6px 0 16px; padding-left: 22px; } .steps li { margin: 6px 0; }
+.field { margin-bottom: 14px; } .field label { display:block; margin-bottom: 6px; font-size: 14px; }
+.field input[type=text], .field input[type=password] { width: 100%; max-width: 520px; }
