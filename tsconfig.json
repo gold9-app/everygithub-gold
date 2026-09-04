@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@everygithub/protocol": ["packages/protocol/src/index.ts"],
+      "@everygithub/core": ["packages/core/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src", "apps/agent/src"]
+}
