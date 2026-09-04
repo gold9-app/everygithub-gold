@@ -1,0 +1,1 @@
+fix: folder picker via Shell.Application, utf8 output, timeout
