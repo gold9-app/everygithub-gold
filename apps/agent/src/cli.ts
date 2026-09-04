@@ -8,6 +8,7 @@ import { AGENT_VERSION, CONFIG_PATH, currentOS, loadConfig, saveConfig, resolveW
 import { HubClient } from "./hub-client";
 import { executeJob } from "./runner";
 import { registerAutostart, removeAutostart } from "./autostart";
+import { selfUpdate } from "./self-update";
 
 const program = new Command();
 program.name("everygithub").description("everygithub_gold 에이전트").version(AGENT_VERSION);
@@ -64,6 +65,10 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
     console.log(pc.dim("허브 없이 쓰려면: everygithub add <github url>"));
     return;
   }
+  const selfPath = process.argv[1];
+  if (await selfUpdate(cfg.hubUrl, selfPath)) return; // 새 프로세스가 이어받음
+  setInterval(async () => { if (await selfUpdate(cfg.hubUrl!, selfPath)) process.exit(0); }, 60 * 60 * 1000);
+
   const hub = new HubClient(cfg.hubUrl, cfg.deviceToken);
   let settings: AgentSettings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 3000 };
   const refreshSettings = async () => {

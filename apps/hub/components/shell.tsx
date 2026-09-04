@@ -1,5 +1,5 @@
 "use client";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import clsx from "clsx";
@@ -17,13 +17,22 @@ export type MeStatus = { devices: { id: string; name: string; online: boolean }[
 /** 앱 셸: 좌측 내비 + 상단 PC 상태. 상태는 10초마다 갱신 */
 export function AppShell({ children, initialStatus, login }: { children: ReactNode; initialStatus: MeStatus; login: string }) {
   const path = usePathname();
+  const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   useEffect(() => {
+    const sig = (s: MeStatus) => s.devices.map((d) => `${d.id}:${d.online ? 1 : 0}`).sort().join(",") + "|" + s.telegram;
+    let last = sig(initialStatus);
     const t = setInterval(async () => {
-      try { const r = await fetch("/api/me/status"); if (r.ok) setStatus(await r.json()); } catch {}
-    }, 10_000);
+      try {
+        const r = await fetch("/api/me/status"); if (!r.ok) return;
+        const s: MeStatus = await r.json();
+        setStatus(s);
+        // PC 연결/온라인 상태가 바뀌면 서버 컴포넌트도 새로 그린다 (새로고침 불필요)
+        if (sig(s) !== last) { last = sig(s); router.refresh(); }
+      } catch {}
+    }, 5_000);
     return () => clearInterval(t);
-  }, []);
+  }, [initialStatus, router]);
   const online = status.devices.filter((d) => d.online);
 
   return (

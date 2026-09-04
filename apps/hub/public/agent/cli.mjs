@@ -970,7 +970,7 @@ var require_command = __commonJS({
     var EventEmitter3 = __require("node:events").EventEmitter;
     var childProcess = __require("node:child_process");
     var path11 = __require("node:path");
-    var fs7 = __require("node:fs");
+    var fs8 = __require("node:fs");
     var process10 = __require("node:process");
     var { Argument: Argument2, humanReadableArgName } = require_argument();
     var { CommanderError: CommanderError2 } = require_error();
@@ -1903,10 +1903,10 @@ Expecting one of '${allowedValues.join("', '")}'`);
         const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
         function findFile(baseDir, baseName) {
           const localBin = path11.resolve(baseDir, baseName);
-          if (fs7.existsSync(localBin)) return localBin;
+          if (fs8.existsSync(localBin)) return localBin;
           if (sourceExt.includes(path11.extname(baseName))) return void 0;
           const foundExt = sourceExt.find(
-            (ext) => fs7.existsSync(`${localBin}${ext}`)
+            (ext) => fs8.existsSync(`${localBin}${ext}`)
           );
           if (foundExt) return `${localBin}${foundExt}`;
           return void 0;
@@ -1918,7 +1918,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
         if (this._scriptPath) {
           let resolvedScriptPath;
           try {
-            resolvedScriptPath = fs7.realpathSync(this._scriptPath);
+            resolvedScriptPath = fs8.realpathSync(this._scriptPath);
           } catch (err) {
             resolvedScriptPath = this._scriptPath;
           }
@@ -7462,8 +7462,8 @@ var require_utils3 = __commonJS({
     exports.array = array;
     var errno = require_errno();
     exports.errno = errno;
-    var fs7 = require_fs();
-    exports.fs = fs7;
+    var fs8 = require_fs();
+    exports.fs = fs8;
     var path11 = require_path();
     exports.path = path11;
     var pattern = require_pattern();
@@ -7647,12 +7647,12 @@ var require_fs2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs7 = __require("fs");
+    var fs8 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs7.lstat,
-      stat: fs7.stat,
-      lstatSync: fs7.lstatSync,
-      statSync: fs7.statSync
+      lstat: fs8.lstat,
+      stat: fs8.stat,
+      lstatSync: fs8.lstatSync,
+      statSync: fs8.statSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -7669,12 +7669,12 @@ var require_settings = __commonJS({
   "node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var fs7 = require_fs2();
+    var fs8 = require_fs2();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLink = this._getValue(this._options.followSymbolicLink, true);
-        this.fs = fs7.createFileSystemAdapter(this._options.fs);
+        this.fs = fs8.createFileSystemAdapter(this._options.fs);
         this.markSymbolicLink = this._getValue(this._options.markSymbolicLink, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
       }
@@ -7829,8 +7829,8 @@ var require_utils4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.fs = void 0;
-    var fs7 = require_fs3();
-    exports.fs = fs7;
+    var fs8 = require_fs3();
+    exports.fs = fs8;
   }
 });
 
@@ -8025,14 +8025,14 @@ var require_fs4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs7 = __require("fs");
+    var fs8 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs7.lstat,
-      stat: fs7.stat,
-      lstatSync: fs7.lstatSync,
-      statSync: fs7.statSync,
-      readdir: fs7.readdir,
-      readdirSync: fs7.readdirSync
+      lstat: fs8.lstat,
+      stat: fs8.stat,
+      lstatSync: fs8.lstatSync,
+      statSync: fs8.statSync,
+      readdir: fs8.readdir,
+      readdirSync: fs8.readdirSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -8051,12 +8051,12 @@ var require_settings2 = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     var path11 = __require("path");
     var fsStat = require_out();
-    var fs7 = require_fs4();
+    var fs8 = require_fs4();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
-        this.fs = fs7.createFileSystemAdapter(this._options.fs);
+        this.fs = fs8.createFileSystemAdapter(this._options.fs);
         this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path11.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
@@ -9438,16 +9438,16 @@ var require_settings4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = void 0;
-    var fs7 = __require("fs");
+    var fs8 = __require("fs");
     var os4 = __require("os");
     var CPU_COUNT = Math.max(os4.cpus().length, 1);
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = {
-      lstat: fs7.lstat,
-      lstatSync: fs7.lstatSync,
-      stat: fs7.stat,
-      statSync: fs7.statSync,
-      readdir: fs7.readdir,
-      readdirSync: fs7.readdirSync
+      lstat: fs8.lstat,
+      lstatSync: fs8.lstatSync,
+      stat: fs8.stat,
+      statSync: fs8.statSync,
+      readdir: fs8.readdir,
+      readdirSync: fs8.readdirSync
     };
     var Settings = class {
       constructor(_options = {}) {
@@ -9598,7 +9598,7 @@ var require_windows = __commonJS({
   "node_modules/isexe/windows.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
-    var fs7 = __require("fs");
+    var fs8 = __require("fs");
     function checkPathExt(path11, options) {
       var pathext = options.pathExt !== void 0 ? options.pathExt : process.env.PATHEXT;
       if (!pathext) {
@@ -9623,12 +9623,12 @@ var require_windows = __commonJS({
       return checkPathExt(path11, options);
     }
     function isexe(path11, options, cb) {
-      fs7.stat(path11, function(er, stat) {
+      fs8.stat(path11, function(er, stat) {
         cb(er, er ? false : checkStat(stat, path11, options));
       });
     }
     function sync(path11, options) {
-      return checkStat(fs7.statSync(path11), path11, options);
+      return checkStat(fs8.statSync(path11), path11, options);
     }
   }
 });
@@ -9638,14 +9638,14 @@ var require_mode = __commonJS({
   "node_modules/isexe/mode.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
-    var fs7 = __require("fs");
+    var fs8 = __require("fs");
     function isexe(path11, options, cb) {
-      fs7.stat(path11, function(er, stat) {
+      fs8.stat(path11, function(er, stat) {
         cb(er, er ? false : checkStat(stat, options));
       });
     }
     function sync(path11, options) {
-      return checkStat(fs7.statSync(path11), options);
+      return checkStat(fs8.statSync(path11), options);
     }
     function checkStat(stat, options) {
       return stat.isFile() && checkMode(stat, options);
@@ -9669,7 +9669,7 @@ var require_mode = __commonJS({
 // node_modules/isexe/index.js
 var require_isexe = __commonJS({
   "node_modules/isexe/index.js"(exports, module) {
-    var fs7 = __require("fs");
+    var fs8 = __require("fs");
     var core;
     if (process.platform === "win32" || global.TESTING_WINDOWS) {
       core = require_windows();
@@ -9933,16 +9933,16 @@ var require_shebang_command = __commonJS({
 var require_readShebang = __commonJS({
   "node_modules/cross-spawn/lib/util/readShebang.js"(exports, module) {
     "use strict";
-    var fs7 = __require("fs");
+    var fs8 = __require("fs");
     var shebangCommand = require_shebang_command();
     function readShebang(command) {
       const size = 150;
       const buffer = Buffer.alloc(size);
       let fd;
       try {
-        fd = fs7.openSync(command, "r");
-        fs7.readSync(fd, buffer, 0, size, 0);
-        fs7.closeSync(fd);
+        fd = fs8.openSync(command, "r");
+        fs8.readSync(fd, buffer, 0, size, 0);
+        fs8.closeSync(fd);
       } catch (e) {
       }
       return shebangCommand(buffer.toString());
@@ -10070,7 +10070,7 @@ var require_cross_spawn = __commonJS({
     var cp = __require("child_process");
     var parse = require_parse3();
     var enoent = require_enoent();
-    function spawn3(command, args, options) {
+    function spawn4(command, args, options) {
       const parsed = parse(command, args, options);
       const spawned = cp.spawn(parsed.command, parsed.args, parsed.options);
       enoent.hookChildProcess(spawned, parsed);
@@ -10082,8 +10082,8 @@ var require_cross_spawn = __commonJS({
       result.error = result.error || enoent.verifyENOENTSync(result.status, parsed);
       return result;
     }
-    module.exports = spawn3;
-    module.exports.spawn = spawn3;
+    module.exports = spawn4;
+    module.exports.spawn = spawn4;
     module.exports.sync = spawnSync2;
     module.exports._parse = parse;
     module.exports._enoent = enoent;
@@ -10108,8 +10108,8 @@ var {
 } = import_index.default;
 
 // apps/agent/src/cli.ts
-var import_picocolors2 = __toESM(require_picocolors(), 1);
-import { promises as fs6 } from "node:fs";
+var import_picocolors3 = __toESM(require_picocolors(), 1);
+import { promises as fs7 } from "node:fs";
 import os3 from "node:os";
 import { randomUUID } from "node:crypto";
 
@@ -14354,7 +14354,7 @@ import os from "node:os";
 import path from "node:path";
 var CONFIG_DIR = path.join(os.homedir(), ".everygithub");
 var CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
-var AGENT_VERSION = "0.2.0";
+var AGENT_VERSION = "0.3.0";
 async function loadConfig() {
   try {
     return JSON.parse(await fs.readFile(CONFIG_PATH, "utf8"));
@@ -26530,15 +26530,44 @@ var pickFolderStep = {
     log(ctx, "pick_folder", "PC \uC5D0 \uD3F4\uB354 \uC120\uD0DD\uCC3D\uC744 \uB744\uC6C1\uB2C8\uB2E4");
     let picked = "";
     if (process.platform === "win32") {
-      const ps = [
-        "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8",
-        // 한글 경로가 깨지지 않게
-        "$sh = New-Object -ComObject Shell.Application",
-        `$f = $sh.BrowseForFolder(0, 'everygithub_gold - \uB808\uD3EC\uB97C \uD074\uB860\uD574 \uB458 \uD3F4\uB354\uB97C \uC120\uD0DD\uD558\uC138\uC694', 0x41, '${ctx.workspacePath.replace(/'/g, "''")}')`,
-        "if ($f -ne $null) { Write-Output $f.Self.Path }"
-      ].join("; ");
-      const r2 = await execa("powershell", ["-NoProfile", "-WindowStyle", "Hidden", "-Command", ps], { reject: false, windowsHide: true, timeout: 18e4 });
-      picked = (r2.stdout ?? "").trim();
+      const os4 = await import("node:os");
+      const tmp = path9.join(os4.tmpdir(), `everygithub-pick-${Date.now()}`);
+      const scriptPath = tmp + ".ps1";
+      const resultPath = tmp + ".txt";
+      const initial = ctx.workspacePath.replace(/'/g, "''");
+      const script = [
+        "$ErrorActionPreference = 'SilentlyContinue'",
+        `$out = '${resultPath.replace(/'/g, "''")}'`,
+        "$picked = ''",
+        "try {",
+        "  Add-Type -AssemblyName System.Windows.Forms",
+        "  $f = New-Object System.Windows.Forms.Form; $f.TopMost = $true; $f.ShowInTaskbar = $false; $f.Opacity = 0; $f.Show(); $f.Activate()",
+        "  $d = New-Object System.Windows.Forms.FolderBrowserDialog",
+        "  $d.Description = 'everygithub_gold - \uB808\uD3EC\uB97C \uD074\uB860\uD574 \uB458 \uD3F4\uB354\uB97C \uC120\uD0DD\uD558\uC138\uC694'",
+        "  $d.ShowNewFolderButton = $true",
+        `  $d.SelectedPath = '${initial}'`,
+        "  if ($d.ShowDialog($f) -eq [System.Windows.Forms.DialogResult]::OK) { $picked = $d.SelectedPath }",
+        "  $f.Close()",
+        "} catch {",
+        "  $sh = New-Object -ComObject Shell.Application",
+        `  $r = $sh.BrowseForFolder(0, 'everygithub_gold - \uB808\uD3EC\uB97C \uD074\uB860\uD574 \uB458 \uD3F4\uB354\uB97C \uC120\uD0DD\uD558\uC138\uC694', 0x41, '${initial}')`,
+        "  if ($r -ne $null) { $picked = $r.Self.Path }",
+        "}",
+        "[System.IO.File]::WriteAllText($out, $picked, (New-Object System.Text.UTF8Encoding($false)))"
+      ].join("\r\n");
+      await fs4.writeFile(scriptPath, "\uFEFF" + script, "utf8");
+      await execa("cmd", ["/c", "start", "", "/min", "powershell", "-NoProfile", "-STA", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden", "-File", scriptPath], { reject: false, windowsHide: true });
+      const deadline = Date.now() + 18e4;
+      while (Date.now() < deadline) {
+        try {
+          picked = (await fs4.readFile(resultPath, "utf8")).trim();
+          break;
+        } catch {
+        }
+        await new Promise((r2) => setTimeout(r2, 700));
+      }
+      await fs4.rm(scriptPath, { force: true });
+      await fs4.rm(resultPath, { force: true });
     } else if (process.platform === "darwin") {
       const r2 = await execa("osascript", ["-e", 'POSIX path of (choose folder with prompt "\uB808\uD3EC\uB97C \uD074\uB860\uD574 \uB458 \uD3F4\uB354")'], { reject: false, timeout: 18e4 });
       picked = (r2.stdout ?? "").trim().replace(/\/$/, "");
@@ -26682,6 +26711,36 @@ async function removeAutostart() {
   await fs5.rm(target, { force: true });
 }
 
+// apps/agent/src/self-update.ts
+var import_picocolors2 = __toESM(require_picocolors(), 1);
+import { createHash } from "node:crypto";
+import { promises as fs6 } from "node:fs";
+import { spawn as spawn3 } from "node:child_process";
+async function selfUpdate(hubUrl, selfPath) {
+  try {
+    const remote = (await (await fetch(`${hubUrl}/agent/cli.mjs.sha256`, { cache: "no-store" })).text()).trim().slice(0, 64);
+    if (!/^[0-9a-f]{64}$/.test(remote)) return false;
+    const local = createHash("sha256").update(await fs6.readFile(selfPath)).digest("hex");
+    if (local === remote) return false;
+    console.log(import_picocolors2.default.cyan("\uC0C8 \uBC84\uC804 \uBC1C\uACAC \u2192 \uC5C5\uB370\uC774\uD2B8 \uC911"));
+    const body = Buffer.from(await (await fetch(`${hubUrl}/agent/cli.mjs`, { cache: "no-store" })).arrayBuffer());
+    if (createHash("sha256").update(body).digest("hex") !== remote) {
+      console.log(import_picocolors2.default.yellow("\uB2E4\uC6B4\uB85C\uB4DC \uD574\uC2DC \uBD88\uC77C\uCE58 \u2014 \uB2E4\uC74C\uC5D0 \uC7AC\uC2DC\uB3C4"));
+      return false;
+    }
+    const tmp = selfPath + ".new";
+    await fs6.writeFile(tmp, body);
+    await fs6.rename(tmp, selfPath);
+    const child = spawn3(process.execPath, [selfPath, "start"], { detached: true, stdio: "ignore", windowsHide: true });
+    child.unref();
+    console.log(import_picocolors2.default.green("\u2714 \uC5C5\uB370\uC774\uD2B8 \uC644\uB8CC \u2014 \uC7AC\uC2DC\uC791"));
+    return true;
+  } catch (err) {
+    console.log(import_picocolors2.default.dim("\uC5C5\uB370\uC774\uD2B8 \uD655\uC778 \uC2E4\uD328: " + err.message));
+    return false;
+  }
+}
+
 // apps/agent/src/cli.ts
 var program2 = new Command();
 program2.name("everygithub").description("everygithub_gold \uC5D0\uC774\uC804\uD2B8").version(AGENT_VERSION);
@@ -26707,18 +26766,18 @@ program2.command("connect <token>").description("\uC0AC\uC774\uD2B8 \uC124\uCE58
   const res = await hub.pair({ code: token.trim(), name: os3.hostname(), os: currentOS(), agentVersion: AGENT_VERSION });
   await saveConfig({ hubUrl, deviceId: res.deviceId, deviceToken: res.deviceToken });
   const auto = await registerAutostart(process.argv[1]);
-  console.log(import_picocolors2.default.green("\u2714 \uC0AC\uC774\uD2B8\uC640 \uC5F0\uACB0\uB428"), import_picocolors2.default.dim(`(${CONFIG_PATH})`));
-  if (auto) console.log(import_picocolors2.default.dim(`\uC790\uB3D9 \uC2DC\uC791 \uB4F1\uB85D: ${auto}`));
+  console.log(import_picocolors3.default.green("\u2714 \uC0AC\uC774\uD2B8\uC640 \uC5F0\uACB0\uB428"), import_picocolors3.default.dim(`(${CONFIG_PATH})`));
+  if (auto) console.log(import_picocolors3.default.dim(`\uC790\uB3D9 \uC2DC\uC791 \uB4F1\uB85D: ${auto}`));
 });
 program2.command("disconnect").description("\uC5F0\uACB0 \uD574\uC81C + \uC790\uB3D9\uC2DC\uC791 \uC81C\uAC70").action(async () => {
   await removeAutostart();
-  await fs6.rm(CONFIG_PATH, { force: true });
+  await fs7.rm(CONFIG_PATH, { force: true });
   console.log("\uC5F0\uACB0 \uD574\uC81C\uB428");
 });
 program2.command("add <url>").description("\uD5C8\uBE0C \uC5C6\uC774 \uB85C\uCEEC\uC5D0\uC11C \uBC14\uB85C \uCC98\uB9AC").option("-p, --pipeline <name>", "quick | docs | full | skill", "quick").option("-d, --dir <path>", "\uD074\uB860 \uD3F4\uB354 (\uAE30\uBCF8: \uB0B4 \uBB38\uC11C\\everygithub)").action(async (url, opts) => {
   const cfg = await loadConfig() ?? {};
   const workspacePath = resolveWorkspace(opts.dir ?? cfg.localWorkspace);
-  await fs6.mkdir(workspacePath, { recursive: true });
+  await fs7.mkdir(workspacePath, { recursive: true });
   await executeJob(localJob(url, Pipeline.parse(opts.pipeline), cfg.deviceId ?? randomUUID()), { workspacePath, anthropicApiKey: process.env.ANTHROPIC_API_KEY });
 });
 program2.command("config").description("\uD604\uC7AC \uC0C1\uD0DC").action(async () => {
@@ -26728,24 +26787,29 @@ program2.command("config").description("\uD604\uC7AC \uC0C1\uD0DC").action(async
 program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\uC11C \uC7A1\uC744 \uBC1B\uC544 \uC2E4\uD589 (\uBC31\uADF8\uB77C\uC6B4\uB4DC \uB370\uBAAC)").action(async () => {
   const cfg = await loadConfig();
   if (!cfg?.hubUrl || !cfg.deviceToken) {
-    console.log(import_picocolors2.default.yellow("\uC0AC\uC774\uD2B8\uC640 \uC5F0\uACB0\uB3FC \uC788\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC0AC\uC774\uD2B8 \uB300\uC2DC\uBCF4\uB4DC\uC5D0\uC11C [PC \uC5F0\uACB0 \uD30C\uC77C \uBC1B\uAE30] \uB97C \uC2E4\uD589\uD558\uC138\uC694."));
-    console.log(import_picocolors2.default.dim("\uD5C8\uBE0C \uC5C6\uC774 \uC4F0\uB824\uBA74: everygithub add <github url>"));
+    console.log(import_picocolors3.default.yellow("\uC0AC\uC774\uD2B8\uC640 \uC5F0\uACB0\uB3FC \uC788\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC0AC\uC774\uD2B8 \uB300\uC2DC\uBCF4\uB4DC\uC5D0\uC11C [PC \uC5F0\uACB0 \uD30C\uC77C \uBC1B\uAE30] \uB97C \uC2E4\uD589\uD558\uC138\uC694."));
+    console.log(import_picocolors3.default.dim("\uD5C8\uBE0C \uC5C6\uC774 \uC4F0\uB824\uBA74: everygithub add <github url>"));
     return;
   }
+  const selfPath = process.argv[1];
+  if (await selfUpdate(cfg.hubUrl, selfPath)) return;
+  setInterval(async () => {
+    if (await selfUpdate(cfg.hubUrl, selfPath)) process.exit(0);
+  }, 60 * 60 * 1e3);
   const hub = new HubClient(cfg.hubUrl, cfg.deviceToken);
   let settings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 3e3 };
   const refreshSettings = async () => {
     try {
       const s = await hub.settings();
       settings = { ...s, workspacePath: resolveWorkspace(s.workspacePath) };
-      await fs6.mkdir(settings.workspacePath, { recursive: true });
+      await fs7.mkdir(settings.workspacePath, { recursive: true });
     } catch (err) {
-      console.error(import_picocolors2.default.red("\uC124\uC815 \uBD88\uB7EC\uC624\uAE30 \uC2E4\uD328:"), err.message);
+      console.error(import_picocolors3.default.red("\uC124\uC815 \uBD88\uB7EC\uC624\uAE30 \uC2E4\uD328:"), err.message);
     }
   };
   await refreshSettings();
-  console.log(import_picocolors2.default.bold(`everygithub agent v${AGENT_VERSION}`), import_picocolors2.default.dim(`\uD5C8\uBE0C ${cfg.hubUrl} \xB7 \uD3F4\uB354 ${settings.workspacePath}`));
-  console.log(import_picocolors2.default.dim("\uC7A1 \uB300\uAE30 \uC911\u2026"));
+  console.log(import_picocolors3.default.bold(`everygithub agent v${AGENT_VERSION}`), import_picocolors3.default.dim(`\uD5C8\uBE0C ${cfg.hubUrl} \xB7 \uD3F4\uB354 ${settings.workspacePath}`));
+  console.log(import_picocolors3.default.dim("\uC7A1 \uB300\uAE30 \uC911\u2026"));
   let failures = 0, ticks = 0;
   for (; ; ) {
     try {
@@ -26759,13 +26823,13 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
       }
     } catch (err) {
       failures++;
-      if (failures === 1 || failures % 20 === 0) console.error(import_picocolors2.default.red("\uD5C8\uBE0C \uC5F0\uACB0 \uC624\uB958:"), err.message);
+      if (failures === 1 || failures % 20 === 0) console.error(import_picocolors3.default.red("\uD5C8\uBE0C \uC5F0\uACB0 \uC624\uB958:"), err.message);
     }
     await new Promise((r2) => setTimeout(r2, Math.min(settings.pollIntervalMs * (failures + 1), 3e4)));
   }
 });
 program2.parseAsync(process.argv).catch((err) => {
-  console.error(import_picocolors2.default.red(err.message ?? err));
+  console.error(import_picocolors3.default.red(err.message ?? err));
   process.exit(1);
 });
 /*! Bundled license information:

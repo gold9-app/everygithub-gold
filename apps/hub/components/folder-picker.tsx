@@ -11,7 +11,7 @@ export function FolderPicker({ deviceId, current, online, onPicked, small }: { d
   const pick = async () => {
     const r = await fetch(`/api/devices/${deviceId}/pick`, { method: "POST" });
     if (!r.ok) return toast("요청 실패", "bad");
-    setBusy(true); toast("PC 화면에 폴더 선택창이 떴습니다", "info");
+    setBusy(true); toast("PC 에 요청했습니다 — 잠시 후 폴더 선택창이 뜹니다", "info");
     let n = 0;
     timer.current = setInterval(async () => {
       n++;

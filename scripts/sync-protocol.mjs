@@ -9,5 +9,8 @@ console.log("synced packages/protocol/src → apps/hub/lib/protocol");
 if (existsSync("apps/agent/dist/cli.mjs")) {
   mkdirSync("apps/hub/public/agent", { recursive: true });
   copyFileSync("apps/agent/dist/cli.mjs", "apps/hub/public/agent/cli.mjs");
+  const { createHash } = await import("node:crypto");
+  const { readFileSync, writeFileSync } = await import("node:fs");
+  writeFileSync("apps/hub/public/agent/cli.mjs.sha256", createHash("sha256").update(readFileSync("apps/agent/dist/cli.mjs")).digest("hex") + "\n");
   console.log("synced apps/agent/dist/cli.mjs → apps/hub/public/agent/cli.mjs");
 }
