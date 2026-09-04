@@ -1,8 +1,20 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileText, TerminalSquare, Sparkles, Plug, RefreshCw, Share2, Copy, Check, Loader2, FlaskConical } from "lucide-react";
+import { FileText, TerminalSquare, Sparkles, Plug, RefreshCw, Share2, Copy, Check, Loader2, FlaskConical, FolderOpen, Trash2 } from "lucide-react";
+import { toast } from "@/components/toast";
+import { repoAction } from "@/components/repo-menu";
 import clsx from "clsx";
+
+export function HeaderActions({ repo }: { repo: { id: string; owner: string; name: string; url: string; local_path: string } }) {
+  const router = useRouter();
+  return (
+    <div className="flex items-center gap-1.5 shrink-0">
+      <button onClick={() => repoAction("open", repo, router)} className="btn btn-ghost btn-sm"><FolderOpen size={14} />폴더 열기</button>
+      <button onClick={() => repoAction("delete", repo, router)} className="btn btn-danger btn-sm"><Trash2 size={14} /></button>
+    </div>
+  );
+}
 
 type Tab = { key: string; label: string; html: string | null; raw: string | null; artifactId: string; shareToken: string | null; createdAt: string };
 
@@ -54,7 +66,7 @@ export function RepoActions({ repoId, stack, hasDocs, deviceOnline, running }: {
     setBusy(key); setMsg("");
     const res = await fetch(`/api/repos/${repoId}/run`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
     setBusy(null);
-    if (res.ok) { setMsg("⏳ 대기열에 추가됐습니다"); router.refresh(); } else setMsg("✖ " + (await res.json()).error);
+    if (res.ok) { toast("대기열에 추가됐습니다", "ok"); router.refresh(); } else { const e = (await res.json()).error; setMsg("✖ " + e); toast(e, "bad"); }
   };
   const actions = [
     stack?.isMcpServer && { key: "mcp", icon: Plug, label: "클로드코드에 MCP 등록", body: { steps: ["clone", "analyze", "mcp"] }, primary: true },

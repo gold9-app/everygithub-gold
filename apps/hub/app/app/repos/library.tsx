@@ -1,9 +1,10 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Search, Library as LibIcon, LayoutGrid, List } from "lucide-react";
 import clsx from "clsx";
 import { Badge, LangDot, EmptyState, timeAgo } from "@/components/ui";
+import { RepoMenu } from "@/components/repo-menu";
 
 type Repo = { id: string; owner: string; name: string; url: string; ref: string | null; local_path: string; stack: any; license: string | null; stars: number | null; tags: string[]; cloned_at: string; updated_at: string };
 
@@ -14,6 +15,11 @@ export function Library({ repos }: { repos: Repo[] }) {
   const [lang, setLang] = useState("all");
   const [sort, setSort] = useState<"recent" | "name">("recent");
   const [view, setView] = useState<"grid" | "list">("grid");
+  const search = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => { if (e.key === "/" && !(e.target as HTMLElement).matches("input,select,textarea")) { e.preventDefault(); search.current?.focus(); } };
+    window.addEventListener("keydown", on); return () => window.removeEventListener("keydown", on);
+  }, []);
 
   const langs = useMemo(() => { const s = new Set<string>(); repos.forEach((r) => r.stack?.languages?.[0] && s.add(r.stack.languages[0])); return [...s].sort(); }, [repos]);
   const list = useMemo(() => {
@@ -41,7 +47,7 @@ export function Library({ repos }: { repos: Repo[] }) {
       </div>
 
       <div className="flex flex-col md:flex-row gap-2 mb-4">
-        <div className="relative flex-1"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-mute" /><input className="input pl-9" placeholder="레포 이름, 프레임워크, 라이선스 검색" value={q} onChange={(e) => setQ(e.target.value)} /></div>
+        <div className="relative flex-1"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-mute" /><input ref={search} className="input pl-9" placeholder="레포 이름, 프레임워크, 라이선스 검색  ( / )" value={q} onChange={(e) => setQ(e.target.value)} /></div>
         <select className="select" value={lang} onChange={(e) => setLang(e.target.value)}><option value="all">모든 언어</option>{langs.map((l) => <option key={l} value={l}>{l}</option>)}</select>
         <select className="select" value={sort} onChange={(e) => setSort(e.target.value as any)}><option value="recent">최근 갱신순</option><option value="name">이름순</option></select>
       </div>
@@ -56,7 +62,8 @@ export function Library({ repos }: { repos: Repo[] }) {
       ) : view === "grid" ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {list.map((r) => (
-            <Link key={r.id} href={`/app/repos/${r.id}`} className="card card-hover p-4 flex flex-col">
+            <Link key={r.id} href={`/app/repos/${r.id}`} className="card card-hover p-4 flex flex-col group relative">
+              <RepoMenu repo={r} className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100" />
               <div className="text-xs text-mute">{r.owner}</div>
               <div className="font-semibold truncate text-[15px]">{r.name}</div>
               <div className="text-xs text-mute mt-1 truncate">{r.stack?.framework ?? r.stack?.packageManager ?? ""}{r.ref ? ` · ${r.ref}` : ""}</div>
@@ -79,6 +86,7 @@ export function Library({ repos }: { repos: Repo[] }) {
               {r.stack?.isMcpServer && <Badge tone="gold">MCP</Badge>}
               {r.license && <Badge>{r.license}</Badge>}
               <span className="text-xs text-mute w-16 text-right">{timeAgo(r.updated_at)}</span>
+              <RepoMenu repo={r} />
             </Link>
           ))}
         </div>

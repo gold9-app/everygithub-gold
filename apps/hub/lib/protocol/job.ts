@@ -5,6 +5,7 @@ export const StepName = z.enum([
   "clone", "analyze", "summary", // 기본층 (AI 키 불필요)
   "docs", "install", "test", "dev", // docs는 AI층, 나머지는 기본층
   "skill", "mcp", "claude_md", "obsidian", "archive",
+  "open", "remove", "pick_folder", // 로컬 명령: 탐색기로 폴더 열기 / 로컬 폴더 삭제 (clone 불필요, options.targetDir 사용)
 ]);
 export type StepName = z.infer<typeof StepName>;
 

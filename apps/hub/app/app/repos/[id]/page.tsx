@@ -5,7 +5,7 @@ import { marked } from "marked";
 import { supabaseServer } from "@/lib/supabase";
 import { isOnline } from "@/lib/data";
 import { Badge, LangDot, timeAgo } from "@/components/ui";
-import { RepoActions, Tabs, CopyPath } from "./detail";
+import { RepoActions, Tabs, CopyPath, HeaderActions } from "./detail";
 
 export const dynamic = "force-dynamic";
 
@@ -40,9 +40,12 @@ export default async function RepoPage({ params }: { params: Promise<{ id: strin
         <div className="flex-1 min-w-0">
           <div className="mb-5">
             <div className="text-sm text-mute">{repo.owner}</div>
-            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2 flex-wrap">{repo.name}
-              <a href={repo.url} target="_blank" className="text-mute hover:text-fg"><ExternalLink size={16} /></a>
-            </h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2 flex-wrap">{repo.name}
+                <a href={repo.url} target="_blank" className="text-mute hover:text-fg"><ExternalLink size={16} /></a>
+              </h1>
+              <HeaderActions repo={{ id: repo.id, owner: repo.owner, name: repo.name, url: repo.url, local_path: repo.local_path }} />
+            </div>
             <div className="flex items-center gap-1.5 mt-3 flex-wrap">
               <LangDot lang={s.languages?.[0]} />
               {s.framework && <Badge>{s.framework}</Badge>}

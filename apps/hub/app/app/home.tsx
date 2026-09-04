@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Link2, Zap, FileText, TerminalSquare, Sparkles, Send, Globe, MonitorSmartphone, Check, X, Loader2 } from "lucide-react";
 import clsx from "clsx";
 import { StatusBadge, PipelineLabel, timeAgo, EmptyState } from "@/components/ui";
+import { toast } from "@/components/toast";
 
 const PIPELINES = [
   { id: "quick", label: "빠른 분석", icon: Zap, hint: "클론 + 스택·라이선스 카드 (초 단위)" },
@@ -37,8 +38,8 @@ export function CommandBar({ devices, hasAnyDevice }: { devices: { id: string; n
     setBusy(true); setErr("");
     const res = await fetch("/api/jobs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: url.trim(), pipeline, deviceId: deviceId || undefined }) });
     setBusy(false);
-    if (res.ok) { setUrl(""); router.refresh(); window.dispatchEvent(new Event("eg:job-created")); }
-    else setErr((await res.json()).error ?? "실패");
+    if (res.ok) { setUrl(""); router.refresh(); window.dispatchEvent(new Event("eg:job-created")); toast(offline ? "대기열에 추가 — PC 가 켜지면 실행됩니다" : "실행을 시작합니다", "ok"); }
+    else { const e = (await res.json()).error ?? "실패"; setErr(e); toast(e, "bad"); }
   };
 
   return (

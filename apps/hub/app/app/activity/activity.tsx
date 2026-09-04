@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Activity as ActIcon } from "lucide-react";
+import { ChevronDown, Activity as ActIcon, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/toast";
 import clsx from "clsx";
 import { StatusBadge, PipelineLabel, timeAgo, EmptyState } from "@/components/ui";
 
@@ -10,6 +12,13 @@ type Ev = { id: number; step: string; level: string; payload: any; ts: string };
 
 export function ActivityList({ jobs }: { jobs: Job[] }) {
   const [open, setOpen] = useState<string | null>(null);
+  const [filter, setFilter] = useState<"all" | "active" | "done" | "failed">("all");
+  const router = useRouter();
+  const shown = jobs.filter((j) => filter === "all" ? true : filter === "active" ? (j.status === "queued" || j.status === "running") : j.status === filter);
+  const cancel = async (id: string) => {
+    const r = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
+    toast(r.ok ? "취소했습니다" : (await r.json()).error, r.ok ? "ok" : "warn"); router.refresh();
+  };
   const [events, setEvents] = useState<Record<string, Ev[]>>({});
   const toggle = async (id: string) => {
     if (open === id) return setOpen(null);
@@ -18,8 +27,15 @@ export function ActivityList({ jobs }: { jobs: Job[] }) {
   };
   if (!jobs.length) return <div className="card"><EmptyState icon={<ActIcon size={18} />} title="아직 활동이 없어요" desc="홈에서 링크를 던지면 여기에 이력이 남습니다." /></div>;
   return (
+    <div>
+    <div className="flex gap-1.5 mb-4">
+      {([["all", "전체"], ["active", "진행 중"], ["done", "완료"], ["failed", "실패"]] as const).map(([k, l]) => (
+        <button key={k} onClick={() => setFilter(k)} className={clsx("h-7 px-3 rounded-full text-xs border", filter === k ? "border-gold/50 bg-gold-dim text-gold" : "border-line text-fg-2 hover:text-fg")}>{l}</button>
+      ))}
+    </div>
     <div className="card divide-y divide-line">
-      {jobs.map((j) => (
+      {!shown.length && <div className="p-6 text-sm text-mute text-center">해당 상태의 작업이 없습니다.</div>}
+      {shown.map((j) => (
         <div key={j.id}>
           <button onClick={() => toggle(j.id)} className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-panel-2">
             <ChevronDown size={14} className={clsx("text-mute transition-transform", open === j.id && "rotate-180")} />
@@ -28,6 +44,7 @@ export function ActivityList({ jobs }: { jobs: Job[] }) {
               <div className="text-xs text-mute"><PipelineLabel p={j.pipeline} /> · {j.origin.channel} · {timeAgo(j.created_at)}{j.finished_at ? ` · ${Math.round((new Date(j.finished_at).getTime() - new Date(j.created_at).getTime()) / 1000)}초` : ""}</div>
             </div>
             <StatusBadge status={j.status} />
+            {j.status === "queued" && <span onClick={(e) => { e.stopPropagation(); cancel(j.id); }} className="text-mute hover:text-bad" title="취소"><XCircle size={15} /></span>}
           </button>
           {open === j.id && (
             <div className="px-4 pb-4 pl-11">
@@ -44,6 +61,7 @@ export function ActivityList({ jobs }: { jobs: Job[] }) {
           )}
         </div>
       ))}
+    </div>
     </div>
   );
 }

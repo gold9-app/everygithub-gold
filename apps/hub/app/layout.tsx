@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import "./globals.css";
+import { Toaster } from "@/components/toast";
+import { ConfirmHost } from "@/components/confirm";
 
 export const metadata = {
   title: "everygithub_gold — 깃허브 링크 하나로 클론·분석·등록",
@@ -12,7 +14,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
       </head>
-      <body>{children}</body>
+      <body>{children}<Toaster /><ConfirmHost /></body>
     </html>
   );
 }

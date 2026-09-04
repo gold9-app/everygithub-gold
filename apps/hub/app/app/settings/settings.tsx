@@ -5,6 +5,9 @@ import { Monitor, Send, KeyRound, User, Check, Pencil, Trash2 } from "lucide-rea
 import clsx from "clsx";
 import { InstallButton } from "@/components/install-button";
 import { TelegramButton } from "@/components/telegram-button";
+import { FolderPicker } from "@/components/folder-picker";
+import { toast } from "@/components/toast";
+import { confirmDialog } from "@/components/confirm";
 
 type Device = { id: string; name: string; os: string; agent_version: string; workspace_path: string; last_seen: string | null; online: boolean };
 type Props = { devices: Device[]; telegram: boolean; login: string; settings: { hasKey: boolean; approve: "auto" | "ask"; defaultWorkspace: string } };
@@ -61,8 +64,9 @@ function DeviceRow({ d, onChange }: { d: Device; onChange: () => void }) {
     setEdit(false); onChange();
   };
   const remove = async () => {
-    if (!confirm(`${d.name} 연결을 해제할까요? PC 의 파일은 그대로 남습니다.`)) return;
-    await fetch(`/api/devices/${d.id}`, { method: "DELETE" }); onChange();
+    const ok = await confirmDialog({ title: `${d.name} 연결 해제`, desc: "PC 의 파일은 그대로 남습니다. 다시 쓰려면 연결 파일을 다시 실행하면 됩니다.", confirmText: "해제", danger: true });
+    if (!ok) return;
+    await fetch(`/api/devices/${d.id}`, { method: "DELETE" }); toast("연결을 해제했습니다", "ok"); onChange();
   };
   return (
     <div className="p-4 border-b border-line last:border-0">
@@ -71,7 +75,8 @@ function DeviceRow({ d, onChange }: { d: Device; onChange: () => void }) {
         <div className="flex-1 min-w-0">
           {edit ? <input className="input h-8 max-w-xs" value={name} onChange={(e) => setName(e.target.value)} /> : <div className="font-medium">{d.name} <span className="text-xs text-mute font-normal">{d.os} · v{d.agent_version} · {d.online ? "온라인" : "오프라인"}</span></div>}
           <div className="text-xs text-mute mt-1">클론 폴더</div>
-          {edit ? <input className="input h-8 mt-1 mono text-xs" value={path} onChange={(e) => setPath(e.target.value)} placeholder="D:\repos 또는 ~/everygithub" /> : <code className="mono text-xs text-fg-2">{d.workspace_path}</code>}
+          {edit ? <input className="input h-8 mt-1 mono text-xs" value={path} onChange={(e) => setPath(e.target.value)} placeholder="D:\repos 또는 ~/everygithub" />
+            : <div className="flex items-center gap-2 flex-wrap"><code className="mono text-xs text-fg-2">{d.workspace_path}</code><FolderPicker deviceId={d.id} current={d.workspace_path} online={d.online} onPicked={() => onChange()} small /></div>}
         </div>
         {edit ? <><button onClick={save} className="btn btn-primary btn-sm"><Check size={13} />저장</button><button onClick={() => setEdit(false)} className="btn btn-subtle btn-sm">취소</button></>
           : <><button onClick={() => setEdit(true)} className="btn btn-subtle btn-sm"><Pencil size={13} />수정</button><button onClick={remove} className="btn btn-danger btn-sm"><Trash2 size={13} /></button></>}

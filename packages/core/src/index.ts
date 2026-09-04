@@ -3,3 +3,4 @@ export * from "./context";
 export * from "./steps/clone";
 export * from "./steps/analyze";
 export * from "./steps/summary";
+export * from "./steps/local";

@@ -5,15 +5,19 @@ import { Check, Monitor, Send, Link2, ArrowRight } from "lucide-react";
 import clsx from "clsx";
 import { InstallButton } from "@/components/install-button";
 import { TelegramButton } from "@/components/telegram-button";
+import { FolderPicker } from "@/components/folder-picker";
+import { FolderOpen } from "lucide-react";
 
-type Props = { initial: { hasDevice: boolean; online: boolean; telegram: boolean } };
+type Props = { initial: { hasDevice: boolean; online: boolean; telegram: boolean; deviceId?: string; workspacePath?: string } };
 
 /** 1회성 온보딩. PC 온라인을 실시간으로 감지해 다음 단계로 넘어간다 */
 export function Welcome({ initial }: Props) {
   const router = useRouter();
   const [online, setOnline] = useState(initial.online);
   const [telegram, setTelegram] = useState(initial.telegram);
-  const [step, setStep] = useState<1 | 2 | 3>(initial.online ? 2 : 1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(initial.online ? 2 : 1);
+  const [deviceId, setDeviceId] = useState(initial.deviceId ?? "");
+  const [workspace, setWorkspace] = useState(initial.workspacePath ?? "");
   const [url, setUrl] = useState("https://github.com/sindresorhus/is-online");
   const [msg, setMsg] = useState("");
 
@@ -24,6 +28,8 @@ export function Welcome({ initial }: Props) {
         const r = await fetch("/api/me/status"); if (!r.ok) return;
         const s = await r.json();
         const on = s.devices.some((d: any) => d.online);
+        const d = s.devices.find((x: any) => x.online) ?? s.devices[0];
+        if (d) { setDeviceId(d.id); setWorkspace(d.workspacePath ?? ""); }
         setOnline(on); setTelegram(s.telegram);
         if (on && step === 1) setStep(2);
       } catch {}
@@ -63,16 +69,25 @@ export function Welcome({ initial }: Props) {
             <p className="text-xs text-mute mt-3">Windows 10/11. Node.js 가 없으면 자동 설치를 시도합니다. 클론 폴더 기본값은 <code className="mono">내 문서\everygithub</code> (설정에서 변경 가능).</p>
           </Step>
 
-          <Step n={2} icon={Send} title="텔레그램 연결 (선택)" done={telegram} active={step === 2}
-            desc="폰에서 링크를 던지고 결과를 받으려면 연결하세요. 버튼 → 텔레그램 열림 → [시작] 한 번.">
+          <Step n={2} icon={FolderOpen} title="클론 폴더 정하기" done={step > 2} active={step === 2}
+            desc="레포가 저장될 폴더입니다. 기본값을 그대로 써도 되고, 버튼을 누르면 PC 화면에 폴더 선택창이 뜹니다.">
             <div className="flex flex-wrap items-center gap-3">
-              {telegram ? <span className="flex items-center gap-2 text-sm text-ok"><Check size={14} />연결됨</span> : <TelegramButton />}
-              {!telegram && <button onClick={() => setStep(3)} className="btn btn-subtle btn-sm">건너뛰기</button>}
-              {telegram && step === 2 && <button onClick={() => setStep(3)} className="btn btn-primary btn-sm">다음 <ArrowRight size={14} /></button>}
+              <code className="mono text-sm bg-bg-raised border border-line rounded-md px-3 h-9 inline-flex items-center">{workspace || "내 문서\\everygithub"}</code>
+              {deviceId && <FolderPicker deviceId={deviceId} current={workspace} online={online} onPicked={(p) => setWorkspace(p)} />}
+              <button onClick={() => setStep(3)} className="btn btn-primary btn-sm">이대로 할게요 <ArrowRight size={14} /></button>
             </div>
           </Step>
 
-          <Step n={3} icon={Link2} title="첫 링크 던져보기" done={false} active={step === 3}
+          <Step n={3} icon={Send} title="텔레그램 연결 (선택)" done={telegram} active={step === 3}
+            desc="폰에서 링크를 던지고 결과를 받으려면 연결하세요. 버튼 → 텔레그램 열림 → [시작] 한 번.">
+            <div className="flex flex-wrap items-center gap-3">
+              {telegram ? <span className="flex items-center gap-2 text-sm text-ok"><Check size={14} />연결됨</span> : <TelegramButton />}
+              {!telegram && <button onClick={() => setStep(4)} className="btn btn-subtle btn-sm">건너뛰기</button>}
+              {telegram && step === 3 && <button onClick={() => setStep(4)} className="btn btn-primary btn-sm">다음 <ArrowRight size={14} /></button>}
+            </div>
+          </Step>
+
+          <Step n={4} icon={Link2} title="첫 링크 던져보기" done={false} active={step === 4}
             desc="샘플 레포로 한 번 돌려봅니다. 몇 초 뒤 홈에서 결과 카드를 볼 수 있어요.">
             <div className="flex flex-col sm:flex-row gap-2">
               <input className="input" value={url} onChange={(e) => setUrl(e.target.value)} disabled={!online} />

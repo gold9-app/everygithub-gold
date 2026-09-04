@@ -6,6 +6,9 @@ import { CommandBar, LiveFeed } from "./home";
 import { SectionTitle, LangDot, Badge, timeAgo } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
+const LOCAL = new Set(["open", "remove", "pick_folder"]);
+const isLocalJob = (j: any) => Array.isArray(j.steps) && j.steps.length > 0 && j.steps.every((s: string) => LOCAL.has(s));
+
 
 /** 홈: 매일 쓰는 화면. 명령 바 + 실시간 피드 + 최근 레포 */
 export default async function Home() {
@@ -13,7 +16,7 @@ export default async function Home() {
   const s = await meStatus(user.id);
   const sb = await supabaseServer();
   const [{ data: jobs }, { data: repos }, { count: repoCount }] = await Promise.all([
-    sb.from("jobs").select("id,source,pipeline,status,origin,created_at,finished_at,repo_id").order("created_at", { ascending: false }).limit(12),
+    sb.from("jobs").select("id,source,pipeline,steps,status,origin,created_at,finished_at,repo_id").order("created_at", { ascending: false }).limit(24),
     sb.from("repos").select("id,owner,name,stack,license,updated_at").order("updated_at", { ascending: false }).limit(6),
     sb.from("repos").select("id", { count: "exact", head: true }),
   ]);
@@ -29,7 +32,7 @@ export default async function Home() {
 
       <section>
         <SectionTitle right={<Link href="/app/activity" className="text-xs text-mute hover:text-fg flex items-center gap-1">전체 보기 <ArrowRight size={12} /></Link>}>최근 작업</SectionTitle>
-        <LiveFeed initial={jobs ?? []} />
+        <LiveFeed initial={(jobs ?? []).filter((j) => !isLocalJob(j)).slice(0, 12)} />
       </section>
 
       <section>

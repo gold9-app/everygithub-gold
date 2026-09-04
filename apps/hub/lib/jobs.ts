@@ -2,7 +2,7 @@ import { CreateJobInput, PIPELINE_STEPS, parseGithubUrl, type JobOrigin, type Pi
 import { supabaseAdmin } from "./supabase";
 
 /** 어떤 채널에서 오든 잡 생성은 여기 한 곳. deviceId 없으면 사용자의 최근 접속 디바이스 */
-export async function createJob(userId: string, input: { url: string; pipeline?: Pipeline; steps?: any[]; origin: JobOrigin; deviceId?: string }) {
+export async function createJob(userId: string, input: { url: string; pipeline?: Pipeline; steps?: any[]; origin: JobOrigin; deviceId?: string; options?: Record<string, unknown> }) {
   const parsed = CreateJobInput.parse(input);
   const source = parseGithubUrl(parsed.url);
   if (!source) throw new Error("깃허브 링크를 인식하지 못했습니다");

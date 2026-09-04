@@ -2,6 +2,7 @@ import { sendTelegram } from "./telegram";
 
 /** 잡이 끝나면 잡을 만든 채널로 결과를 돌려보낸다 */
 export async function notifyJobDone(job: any, status: "done" | "failed", error?: string, summary?: string) {
+  if (job.pipeline === "custom" && (job.steps as string[]).every((s) => s === "open" || s === "remove")) return; // 로컬 명령은 알림 없음
   const origin = job.origin as { channel: string; chatId?: string };
   const hub = process.env.HUB_URL ?? "";
   const link = job.repo_id ? `${hub}/app/repos/${job.repo_id}` : `${hub}/app`;

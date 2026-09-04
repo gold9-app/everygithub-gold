@@ -7,11 +7,11 @@ export const isOnline = (t: string | null) => Boolean(t && Date.now() - new Date
 export async function meStatus(userId: string) {
   const sb = await supabaseServer();
   const [{ data: devices }, { data: profile }] = await Promise.all([
-    sb.from("devices").select("id,name,last_seen").order("last_seen", { ascending: false }),
+    sb.from("devices").select("id,name,last_seen,workspace_path").order("last_seen", { ascending: false }),
     sb.from("profiles").select("telegram_chat_id,settings,github_login").eq("id", userId).maybeSingle(),
   ]);
   return {
-    devices: (devices ?? []).map((d) => ({ id: d.id, name: d.name, online: isOnline(d.last_seen) })),
+    devices: (devices ?? []).map((d) => ({ id: d.id, name: d.name, online: isOnline(d.last_seen), workspacePath: d.workspace_path as string })),
     telegram: Boolean(profile?.telegram_chat_id),
     settings: (profile?.settings ?? {}) as Record<string, any>,
     login: profile?.github_login ?? "",

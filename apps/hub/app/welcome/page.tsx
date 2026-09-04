@@ -9,5 +9,6 @@ export default async function WelcomePage() {
   const user = await currentUser();
   if (!user) redirect("/");
   const s = await meStatus(user.id);
-  return <Welcome initial={{ hasDevice: s.devices.length > 0, online: s.devices.some((d) => d.online), telegram: s.telegram }} />;
+  const d = s.devices.find((x) => x.online) ?? s.devices[0];
+  return <Welcome initial={{ hasDevice: s.devices.length > 0, online: s.devices.some((d) => d.online), telegram: s.telegram, deviceId: d?.id, workspacePath: d?.workspacePath }} />;
 }

@@ -31,6 +31,11 @@ export class HubClient {
     return this.req<{ job: Job | null }>("GET", "/api/agent/jobs/next").then((r) => r.job);
   }
 
+  /** 폴더 선택창 결과 등으로 디바이스 설정 갱신 */
+  updateDevice(patch: { workspacePath?: string }) {
+    return this.req<{ ok: true }>("PATCH", "/api/agent/device", patch);
+  }
+
   pushEvents(jobId: string, events: JobEvent[]) {
     return this.req<{ ok: true }>("POST", `/api/agent/jobs/${jobId}/events`, { events });
   }

@@ -3,11 +3,15 @@ import type { RunContext, Step } from "./context";
 import { cloneStep } from "./steps/clone";
 import { analyzeStep } from "./steps/analyze";
 import { summaryStep } from "./steps/summary";
+import { openStep, removeStep, pickFolderStep } from "./steps/local";
 
 const REGISTRY: Partial<Record<StepName, Step>> = {
   clone: cloneStep,
   analyze: analyzeStep,
   summary: summaryStep,
+  open: openStep,
+  remove: removeStep,
+  pick_folder: pickFolderStep,
   // docs / install / test / dev / skill / mcp / claude_md / obsidian / archive → 다음 단계에서 추가
 };
 
@@ -26,6 +30,9 @@ export async function runJob(job: Job, opts: EngineOptions): Promise<RunContext>
     anthropicApiKey: opts.anthropicApiKey,
     emit: (e) => opts.onEvent({ ...e, jobId: job.id, ts: new Date().toISOString() }),
   };
+
+  // clone 없이 로컬 명령만 실행하는 잡은 options.targetDir 가 대상 경로
+  if (!job.steps.includes("clone") && job.options.targetDir) ctx.localPath = job.options.targetDir;
 
   for (const name of job.steps) {
     const step = REGISTRY[name];
