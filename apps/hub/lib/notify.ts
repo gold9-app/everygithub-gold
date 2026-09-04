@@ -4,7 +4,7 @@ import { sendTelegram } from "./telegram";
 export async function notifyJobDone(job: any, status: "done" | "failed", error?: string, summary?: string) {
   const origin = job.origin as { channel: string; chatId?: string };
   const hub = process.env.HUB_URL ?? "";
-  const link = job.repo_id ? `${hub}/repos/${job.repo_id}` : `${hub}/dashboard`;
+  const link = job.repo_id ? `${hub}/app/repos/${job.repo_id}` : `${hub}/app`;
   const text = status === "done"
     ? `✔ 완료 — ${job.source.owner}/${job.source.name}\n${link}\n\n${(summary ?? "").slice(0, 2500)}`
     : `✖ 실패 — ${job.source.owner}/${job.source.name}\n${error ?? ""}`;

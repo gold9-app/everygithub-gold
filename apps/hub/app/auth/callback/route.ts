@@ -9,5 +9,5 @@ export async function GET(req: Request) {
     const sb = await supabaseServer();
     await sb.auth.exchangeCodeForSession(code);
   }
-  return NextResponse.redirect(new URL("/dashboard", url.origin));
+  return NextResponse.redirect(new URL("/app", url.origin));
 }
