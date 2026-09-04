@@ -22,7 +22,9 @@ export function CommandBar({ devices, hasAnyDevice }: { devices: { id: string; n
   const [err, setErr] = useState("");
   const router = useRouter();
   const ref = useRef<HTMLInputElement>(null);
-  const disabled = devices.length === 0;
+  // PC 가 하나라도 연결돼 있으면 오프라인이어도 대기열에 넣을 수 있다 (켜지면 자동 실행)
+  const disabled = !hasAnyDevice;
+  const offline = hasAnyDevice && devices.length === 0;
   const valid = /github\.com\//.test(url);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function CommandBar({ devices, hasAnyDevice }: { devices: { id: string; n
     <div className={clsx("card p-2 md:p-3", disabled && "opacity-80")}>
       <div className="flex items-center gap-2">
         <Link2 size={18} className="text-mute ml-2 shrink-0" />
-        <input ref={ref} className="flex-1 bg-transparent h-11 text-[15px] outline-none placeholder:text-mute min-w-0" placeholder={disabled ? (hasAnyDevice ? "PC 에이전트가 꺼져 있습니다" : "먼저 PC 를 연결하세요") : "https://github.com/owner/repo  (⌘K)"}
+        <input ref={ref} className="flex-1 bg-transparent h-11 text-[15px] outline-none placeholder:text-mute min-w-0" placeholder={disabled ? "먼저 PC 를 연결하세요" : offline ? "https://github.com/owner/repo  — PC 가 켜지면 실행됩니다" : "https://github.com/owner/repo  (⌘K)"}
           value={url} onChange={(e) => setUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit()} disabled={disabled} autoFocus />
         {devices.length > 1 && (
           <select className="select h-9 text-xs" value={deviceId} onChange={(e) => setDeviceId(e.target.value)}>{devices.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select>
@@ -58,6 +60,7 @@ export function CommandBar({ devices, hasAnyDevice }: { devices: { id: string; n
           </button>
         ))}
         <span className="text-[11px] text-mute self-center ml-2 hidden sm:inline">{PIPELINES.find((p) => p.id === pipeline)?.hint}</span>
+        {offline && !err && <span className="text-xs text-warn self-center ml-auto">PC 오프라인 — 대기열에 쌓이고 켜지면 자동 실행</span>}
         {err && <span className="text-xs text-bad self-center ml-auto">{err}</span>}
         {disabled && !hasAnyDevice && <Link href="/welcome" className="text-xs text-gold self-center ml-auto">PC 연결하기 →</Link>}
       </div>

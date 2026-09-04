@@ -23,8 +23,8 @@ export default async function Home() {
     <div className="space-y-10">
       <section className="fade-up">
         <h1 className="text-2xl font-bold tracking-tight mb-1">무엇을 가져올까요?</h1>
-        <p className="text-sm text-fg-2 mb-5">깃허브 링크를 붙여넣으면 {onlineDevices[0]?.name ?? "내 PC"} 에 클론하고 분석합니다.</p>
-        <CommandBar devices={onlineDevices} hasAnyDevice={s.devices.length > 0} />
+        <p className="text-sm text-fg-2 mb-5">깃허브 링크를 붙여넣으면 {(onlineDevices[0] ?? s.devices[0])?.name ?? "내 PC"} 에 클론하고 분석합니다.</p>
+        <CommandBar devices={onlineDevices.length ? onlineDevices : s.devices} hasAnyDevice={s.devices.length > 0} />
       </section>
 
       <section>
