@@ -16,11 +16,20 @@ export async function POST(req: Request) {
   const workspacePath = body.data.workspacePath || profile?.settings?.defaultWorkspace || "~/everygithub";
 
   const token = newToken();
-  const { data: device, error } = await sb.from("devices").insert({
-    user_id: code.user_id, name: body.data.name, os: body.data.os, agent_version: body.data.agentVersion,
-    workspace_path: workspacePath, token_hash: sha256(token), last_seen: new Date().toISOString(),
-  }).select("id").single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  // 같은 사용자의 같은 PC(호스트명)면 새 행을 만들지 않고 토큰만 갱신 → 설치 파일을 여러 번 실행해도 PC 는 하나
+  const { data: existing } = await sb.from("devices").select("id").eq("user_id", code.user_id).eq("name", body.data.name).maybeSingle();
+  let deviceId: string;
+  if (existing) {
+    await sb.from("devices").update({ os: body.data.os, agent_version: body.data.agentVersion, token_hash: sha256(token), last_seen: new Date().toISOString() }).eq("id", existing.id);
+    deviceId = existing.id;
+  } else {
+    const { data: device, error } = await sb.from("devices").insert({
+      user_id: code.user_id, name: body.data.name, os: body.data.os, agent_version: body.data.agentVersion,
+      workspace_path: workspacePath, token_hash: sha256(token), last_seen: new Date().toISOString(),
+    }).select("id").single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    deviceId = device.id;
+  }
   await sb.from("pairing_codes").update({ used_at: new Date().toISOString() }).eq("code", code.code);
-  return NextResponse.json({ deviceId: device.id, deviceToken: token });
+  return NextResponse.json({ deviceId, deviceToken: token });
 }

@@ -13,6 +13,7 @@ export interface AgentConfig {
 
 export const CONFIG_DIR = path.join(os.homedir(), ".everygithub");
 export const CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
+export const PID_PATH = path.join(CONFIG_DIR, "agent.pid");
 export const AGENT_VERSION = "0.3.0";
 
 export async function loadConfig(): Promise<AgentConfig | null> {

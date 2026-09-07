@@ -14355,6 +14355,7 @@ import os from "node:os";
 import path from "node:path";
 var CONFIG_DIR = path.join(os.homedir(), ".everygithub");
 var CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
+var PID_PATH = path.join(CONFIG_DIR, "agent.pid");
 var AGENT_VERSION = "0.3.0";
 async function loadConfig() {
   try {
@@ -26848,6 +26849,18 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
     process.chdir(os3.homedir());
   } catch {
   }
+  try {
+    const old = Number((await fs7.readFile(PID_PATH, "utf8")).trim());
+    if (old && old !== process.pid) {
+      try {
+        process.kill(old);
+      } catch {
+      }
+    }
+  } catch {
+  }
+  await fs7.mkdir(CONFIG_DIR, { recursive: true });
+  await fs7.writeFile(PID_PATH, String(process.pid));
   const selfPath = process.argv[1];
   if (await selfUpdate(cfg.hubUrl, selfPath)) return;
   setInterval(async () => {
@@ -26860,6 +26873,8 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
       const s = await hub.settings();
       settings = { ...s, workspacePath: resolveWorkspace(s.workspacePath) };
       await fs7.mkdir(settings.workspacePath, { recursive: true });
+      if (s.workspacePath !== settings.workspacePath) await hub.updateDevice({ workspacePath: settings.workspacePath }).catch(() => {
+      });
     } catch (err) {
       console.error(import_picocolors3.default.red("\uC124\uC815 \uBD88\uB7EC\uC624\uAE30 \uC2E4\uD328:"), err.message);
     }
@@ -26879,8 +26894,13 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
         continue;
       }
     } catch (err) {
+      const msg = err.message;
+      if (msg.includes("\u2192 401")) {
+        console.log(import_picocolors3.default.yellow("\uC774 PC \uC758 \uC5F0\uACB0\uC774 \uD574\uC81C\uB418\uC5C8\uAC70\uB098 \uC0C8 \uC5F0\uACB0\uB85C \uB300\uCCB4\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC885\uB8CC\uD569\uB2C8\uB2E4."));
+        process.exit(0);
+      }
       failures++;
-      if (failures === 1 || failures % 20 === 0) console.error(import_picocolors3.default.red("\uD5C8\uBE0C \uC5F0\uACB0 \uC624\uB958:"), err.message);
+      if (failures === 1 || failures % 20 === 0) console.error(import_picocolors3.default.red("\uD5C8\uBE0C \uC5F0\uACB0 \uC624\uB958:"), msg);
     }
     await new Promise((r2) => setTimeout(r2, Math.min(settings.pollIntervalMs * (failures + 1), 3e4)));
   }

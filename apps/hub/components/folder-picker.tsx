@@ -24,6 +24,7 @@ function FolderBrowser({ deviceId, current, onClose, onPicked }: { deviceId: str
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [newName, setNewName] = useState("");
+  const [typed, setTyped] = useState("");
   const [saving, setSaving] = useState(false);
 
   const load = async (p: string) => {
@@ -80,6 +81,12 @@ function FolderBrowser({ deviceId, current, onClose, onPicked }: { deviceId: str
                 ))}
             </div>
             <div className="border-t border-line p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-mute whitespace-nowrap">경로 붙여넣기</span>
+                <input className="input h-8 text-xs mono" placeholder="탐색기 주소창을 복사해 붙여넣기  예) D:\repos" value={typed} onChange={(e) => setTyped(e.target.value)} onKeyDown={(e) => e.key === "Enter" && typed.trim() && load(typed.trim())} />
+                <button disabled={!typed.trim()} onClick={() => load(typed.trim())} className="btn btn-ghost btn-sm whitespace-nowrap">이동</button>
+                <button disabled={!typed.trim() || saving} onClick={() => choose(typed.trim().replace(/[\\/]+$/, ""))} className="btn btn-ghost btn-sm whitespace-nowrap">바로 선택</button>
+              </div>
               <div className="flex items-center gap-2">
                 <FolderPlus size={14} className="text-mute" />
                 <input className="input h-8 text-xs" placeholder="여기에 새 폴더 만들기 (이름 입력)" value={newName} onChange={(e) => setNewName(e.target.value)} disabled={!listing?.path} />

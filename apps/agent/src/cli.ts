@@ -4,7 +4,7 @@ import os from "node:os";
 import { randomUUID } from "node:crypto";
 import pc from "picocolors";
 import { parseGithubUrl, PIPELINE_STEPS, Pipeline, type Job, type AgentSettings } from "@everygithub/protocol";
-import { AGENT_VERSION, CONFIG_PATH, currentOS, loadConfig, saveConfig, resolveWorkspace, defaultWorkspace } from "./config";
+import { AGENT_VERSION, CONFIG_PATH, PID_PATH, CONFIG_DIR, currentOS, loadConfig, saveConfig, resolveWorkspace, defaultWorkspace } from "./config";
 import { HubClient } from "./hub-client";
 import { executeJob } from "./runner";
 import { registerAutostart, removeAutostart } from "./autostart";
@@ -66,6 +66,13 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
     return;
   }
   try { process.chdir(os.homedir()); } catch {} // 설치 파일이 Downloads 에서 띄워도 홈 기준으로
+  // 이전 인스턴스가 있으면 종료 (설치 파일 재실행·자동 업데이트 시 중복 방지)
+  try {
+    const old = Number((await fs.readFile(PID_PATH, "utf8")).trim());
+    if (old && old !== process.pid) { try { process.kill(old); } catch {} }
+  } catch {}
+  await fs.mkdir(CONFIG_DIR, { recursive: true });
+  await fs.writeFile(PID_PATH, String(process.pid));
   const selfPath = process.argv[1];
   if (await selfUpdate(cfg.hubUrl, selfPath)) return; // 새 프로세스가 이어받음
   setInterval(async () => { if (await selfUpdate(cfg.hubUrl!, selfPath)) process.exit(0); }, 60 * 60 * 1000);
@@ -77,6 +84,8 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
       const s = await hub.settings();
       settings = { ...s, workspacePath: resolveWorkspace(s.workspacePath) };
       await fs.mkdir(settings.workspacePath, { recursive: true });
+      // "~/..." 같은 약어 경로는 실제 경로로 바꿔 사이트에 그대로 보이게
+      if (s.workspacePath !== settings.workspacePath) await hub.updateDevice({ workspacePath: settings.workspacePath }).catch(() => {});
     } catch (err) { console.error(pc.red("설정 불러오기 실패:"), (err as Error).message); }
   };
   await refreshSettings();
@@ -90,8 +99,14 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
       failures = 0;
       if (job) { await refreshSettings(); await executeJob(job, settings, hub); continue; }
     } catch (err) {
+      const msg = (err as Error).message;
+      if (msg.includes("→ 401")) {
+        // 사이트에서 이 PC 가 해제됐거나 다른 인스턴스가 새로 연결됨 → 이 프로세스는 물러난다
+        console.log(pc.yellow("이 PC 의 연결이 해제되었거나 새 연결로 대체되었습니다. 종료합니다."));
+        process.exit(0);
+      }
       failures++;
-      if (failures === 1 || failures % 20 === 0) console.error(pc.red("허브 연결 오류:"), (err as Error).message);
+      if (failures === 1 || failures % 20 === 0) console.error(pc.red("허브 연결 오류:"), msg);
     }
     await new Promise((r) => setTimeout(r, Math.min(settings.pollIntervalMs * (failures + 1), 30000)));
   }
