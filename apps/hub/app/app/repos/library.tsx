@@ -63,7 +63,7 @@ export function Library({ repos }: { repos: Repo[] }) {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {list.map((r) => (
             <Link key={r.id} href={`/app/repos/${r.id}`} className="card card-hover p-4 flex flex-col group relative">
-              <RepoMenu repo={r} className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100" />
+              <RepoMenu repo={r} className="absolute top-2.5 right-2.5" />
               <div className="text-xs text-mute">{r.owner}</div>
               <div className="font-semibold truncate text-[15px]">{r.name}</div>
               <div className="text-xs text-mute mt-1 truncate">{r.stack?.framework ?? r.stack?.packageManager ?? ""}{r.ref ? ` · ${r.ref}` : ""}</div>

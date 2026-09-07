@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Link2, Zap, FileText, TerminalSquare, Sparkles, Send, Globe, MonitorSmartphone, Check, X, Loader2 } from "lucide-react";
+import { Link2, Zap, FileText, TerminalSquare, Sparkles, Send, Globe, MonitorSmartphone, Check, X, Loader2, Trash2 } from "lucide-react";
 import clsx from "clsx";
 import { StatusBadge, PipelineLabel, timeAgo, EmptyState, JobNotes } from "@/components/ui";
 import { toast } from "@/components/toast";
@@ -86,6 +86,11 @@ export function LiveFeed({ initial }: { initial: JobRow[] }) {
     return () => { alive = false; clearInterval(t); window.removeEventListener("eg:job-created", onCreated); };
   }, [jobs]);
 
+  const remove = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault(); e.stopPropagation();
+    const r = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
+    if (r.ok) { setJobs((l) => l.filter((j) => j.id !== id)); toast("작업 기록을 지웠습니다", "ok"); } else toast((await r.json()).error ?? "실패", "warn");
+  };
   if (!jobs.length) return <div className="card"><EmptyState icon={<Zap size={18} />} title="아직 작업이 없어요" desc="위 명령 바에 깃허브 링크를 붙여넣고 실행하면 여기에 실시간으로 표시됩니다." /></div>;
 
   return (
@@ -108,6 +113,8 @@ export function LiveFeed({ initial }: { initial: JobRow[] }) {
               <JobNotes error={j.error} skipped={j.skipped} />
             </div>
             <StatusBadge status={j.status} />
+            {!active && <button onClick={(e) => remove(e, j.id)} className="w-7 h-7 rounded-md flex items-center justify-center text-mute hover:text-bad hover:bg-bad/10" title="기록 삭제"><Trash2 size={14} /></button>}
+            {j.status === "queued" && <button onClick={(e) => remove(e, j.id)} className="w-7 h-7 rounded-md flex items-center justify-center text-mute hover:text-bad hover:bg-bad/10" title="취소"><X size={14} /></button>}
           </div>
         );
         return j.repo_id ? <Link key={j.id} href={`/app/repos/${j.repo_id}`} className="block hover:bg-panel-2 transition-colors">{inner}</Link> : <div key={j.id}>{inner}</div>;

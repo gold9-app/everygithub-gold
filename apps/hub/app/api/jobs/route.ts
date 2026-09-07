@@ -33,3 +33,13 @@ export async function GET(req: Request) {
   const { data } = await sb.from("jobs").select("id,source,pipeline,steps,status,origin,created_at,finished_at,repo_id,error,skipped").order("created_at", { ascending: false }).limit(limit + 10);
   return NextResponse.json({ jobs: (data ?? []).filter((j) => !isLocalJob(j)).slice(0, limit) });
 }
+
+/** 끝난 작업(완료·실패·취소) 기록 모두 삭제 */
+export async function DELETE() {
+  const user = await currentUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const sb = await supabaseServer();
+  const { error } = await sb.from("jobs").delete().in("status", ["done", "failed", "cancelled"]);
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ ok: true });
+}

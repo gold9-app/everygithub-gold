@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Activity as ActIcon, XCircle } from "lucide-react";
+import { ChevronDown, Activity as ActIcon, XCircle, Trash2 } from "lucide-react";
+import { confirmDialog } from "@/components/confirm";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast";
 import clsx from "clsx";
@@ -17,7 +18,14 @@ export function ActivityList({ jobs }: { jobs: Job[] }) {
   const shown = jobs.filter((j) => filter === "all" ? true : filter === "active" ? (j.status === "queued" || j.status === "running") : j.status === filter);
   const cancel = async (id: string) => {
     const r = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
-    toast(r.ok ? "취소했습니다" : (await r.json()).error, r.ok ? "ok" : "warn"); router.refresh();
+    const d = await r.json().catch(() => ({}));
+    toast(r.ok ? (d.cancelled ? "취소했습니다" : "기록을 지웠습니다") : d.error ?? "실패", r.ok ? "ok" : "warn"); router.refresh();
+  };
+  const clearAll = async () => {
+    const ok = await confirmDialog({ title: "끝난 작업 기록 모두 지우기", desc: "완료·실패·취소된 작업 기록을 삭제합니다. 클론된 레포와 설명서는 그대로 남습니다.", confirmText: "모두 지우기", danger: true });
+    if (!ok) return;
+    const r = await fetch("/api/jobs", { method: "DELETE" });
+    toast(r.ok ? "지웠습니다" : "실패", r.ok ? "ok" : "bad"); router.refresh();
   };
   const [events, setEvents] = useState<Record<string, Ev[]>>({});
   const toggle = async (id: string) => {
@@ -28,10 +36,11 @@ export function ActivityList({ jobs }: { jobs: Job[] }) {
   if (!jobs.length) return <div className="card"><EmptyState icon={<ActIcon size={18} />} title="아직 활동이 없어요" desc="홈에서 링크를 던지면 여기에 이력이 남습니다." /></div>;
   return (
     <div>
-    <div className="flex gap-1.5 mb-4">
+    <div className="flex gap-1.5 mb-4 items-center">
       {([["all", "전체"], ["active", "진행 중"], ["done", "완료"], ["failed", "실패"]] as const).map(([k, l]) => (
         <button key={k} onClick={() => setFilter(k)} className={clsx("h-7 px-3 rounded-full text-xs border", filter === k ? "border-gold/50 bg-gold-dim text-gold" : "border-line text-fg-2 hover:text-fg")}>{l}</button>
       ))}
+      <button onClick={clearAll} className="btn btn-subtle btn-sm ml-auto"><Trash2 size={13} />끝난 작업 모두 지우기</button>
     </div>
     <div className="card divide-y divide-line">
       {!shown.length && <div className="p-6 text-sm text-mute text-center">해당 상태의 작업이 없습니다.</div>}
@@ -46,6 +55,7 @@ export function ActivityList({ jobs }: { jobs: Job[] }) {
             </div>
             <StatusBadge status={j.status} />
             {j.status === "queued" && <span onClick={(e) => { e.stopPropagation(); cancel(j.id); }} className="text-mute hover:text-bad" title="취소"><XCircle size={15} /></span>}
+            {j.status !== "queued" && j.status !== "running" && <span onClick={(e) => { e.stopPropagation(); cancel(j.id); }} className="text-mute hover:text-bad" title="기록 삭제"><Trash2 size={15} /></span>}
           </button>
           {open === j.id && (
             <div className="px-4 pb-4 pl-11">
