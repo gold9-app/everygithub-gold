@@ -17,7 +17,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { data: repo } = await sb.from("repos").select("url,device_id").eq("id", id).maybeSingle();
   if (!repo) return NextResponse.json({ error: "not found" }, { status: 404 });
   try {
-    const job = await createJob(user.id, { url: repo.url, pipeline: body.data.pipeline ?? "custom", steps: body.data.steps, origin: { channel: "web" }, deviceId: repo.device_id });
+    // 상세 페이지 버튼은 사용자의 명시적 클릭 → 설치·테스트도 확인 없이 실행
+    const job = await createJob(user.id, { url: repo.url, pipeline: body.data.pipeline ?? "custom", steps: body.data.steps, origin: { channel: "web" }, deviceId: repo.device_id, options: { approve: "auto" } });
     return NextResponse.json({ id: job.id });
   } catch (err) { return NextResponse.json({ error: (err as Error).message }, { status: 400 }); }
 }

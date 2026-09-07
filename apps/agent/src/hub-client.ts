@@ -45,6 +45,7 @@ export class HubClient {
     error?: string;
     repo?: { localPath: string; stack: StackInfo | null; license: string | null; ref: string | null };
     artifacts?: Record<string, string>;
+    skipped?: { step: string; reason: string }[];
   }) {
     return this.req<{ ok: true }>("POST", `/api/agent/jobs/${jobId}/complete`, result);
   }

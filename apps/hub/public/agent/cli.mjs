@@ -972,8 +972,8 @@ var require_command = __commonJS({
   "node_modules/commander/lib/command.js"(exports) {
     var EventEmitter3 = __require("node:events").EventEmitter;
     var childProcess = __require("node:child_process");
-    var path11 = __require("node:path");
-    var fs8 = __require("node:fs");
+    var path15 = __require("node:path");
+    var fs12 = __require("node:fs");
     var process10 = __require("node:process");
     var { Argument: Argument2, humanReadableArgName } = require_argument();
     var { CommanderError: CommanderError2 } = require_error();
@@ -1905,11 +1905,11 @@ Expecting one of '${allowedValues.join("', '")}'`);
         let launchWithNode = false;
         const sourceExt = [".js", ".ts", ".tsx", ".mjs", ".cjs"];
         function findFile(baseDir, baseName) {
-          const localBin = path11.resolve(baseDir, baseName);
-          if (fs8.existsSync(localBin)) return localBin;
-          if (sourceExt.includes(path11.extname(baseName))) return void 0;
+          const localBin = path15.resolve(baseDir, baseName);
+          if (fs12.existsSync(localBin)) return localBin;
+          if (sourceExt.includes(path15.extname(baseName))) return void 0;
           const foundExt = sourceExt.find(
-            (ext) => fs8.existsSync(`${localBin}${ext}`)
+            (ext) => fs12.existsSync(`${localBin}${ext}`)
           );
           if (foundExt) return `${localBin}${foundExt}`;
           return void 0;
@@ -1921,21 +1921,21 @@ Expecting one of '${allowedValues.join("', '")}'`);
         if (this._scriptPath) {
           let resolvedScriptPath;
           try {
-            resolvedScriptPath = fs8.realpathSync(this._scriptPath);
+            resolvedScriptPath = fs12.realpathSync(this._scriptPath);
           } catch (err) {
             resolvedScriptPath = this._scriptPath;
           }
-          executableDir = path11.resolve(
-            path11.dirname(resolvedScriptPath),
+          executableDir = path15.resolve(
+            path15.dirname(resolvedScriptPath),
             executableDir
           );
         }
         if (executableDir) {
           let localFile = findFile(executableDir, executableFile);
           if (!localFile && !subcommand._executableFile && this._scriptPath) {
-            const legacyName = path11.basename(
+            const legacyName = path15.basename(
               this._scriptPath,
-              path11.extname(this._scriptPath)
+              path15.extname(this._scriptPath)
             );
             if (legacyName !== this._name) {
               localFile = findFile(
@@ -1946,7 +1946,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
           }
           executableFile = localFile || executableFile;
         }
-        launchWithNode = sourceExt.includes(path11.extname(executableFile));
+        launchWithNode = sourceExt.includes(path15.extname(executableFile));
         let proc;
         if (process10.platform !== "win32") {
           if (launchWithNode) {
@@ -2786,7 +2786,7 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @return {Command}
        */
       nameFromFilename(filename) {
-        this._name = path11.basename(filename, path11.extname(filename));
+        this._name = path15.basename(filename, path15.extname(filename));
         return this;
       }
       /**
@@ -2800,9 +2800,9 @@ Expecting one of '${allowedValues.join("', '")}'`);
        * @param {string} [path]
        * @return {(string|null|Command)}
        */
-      executableDir(path12) {
-        if (path12 === void 0) return this._executableDir;
-        this._executableDir = path12;
+      executableDir(path16) {
+        if (path16 === void 0) return this._executableDir;
+        this._executableDir = path16;
         return this;
       }
       /**
@@ -3815,10 +3815,10 @@ var require_src2 = __commonJS({
     var fs_1 = __require("fs");
     var debug_1 = __importDefault(require_src());
     var log2 = debug_1.default("@kwsites/file-exists");
-    function check(path11, isFile, isDirectory) {
-      log2(`checking %s`, path11);
+    function check(path15, isFile, isDirectory) {
+      log2(`checking %s`, path15);
       try {
-        const stat = fs_1.statSync(path11);
+        const stat = fs_1.statSync(path15);
         if (stat.isFile() && isFile) {
           log2(`[OK] path represents a file`);
           return true;
@@ -3838,10 +3838,10 @@ var require_src2 = __commonJS({
         throw e;
       }
     }
-    function exists3(path11, type = exports.READABLE) {
-      return check(path11, (type & exports.FILE) > 0, (type & exports.FOLDER) > 0);
+    function exists5(path15, type = exports.READABLE) {
+      return check(path15, (type & exports.FILE) > 0, (type & exports.FOLDER) > 0);
     }
-    exports.exists = exists3;
+    exports.exists = exists5;
     exports.FILE = 1;
     exports.FOLDER = 2;
     exports.READABLE = exports.FILE + exports.FOLDER;
@@ -3973,9 +3973,9 @@ var require_path = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
-    var os4 = __require("os");
-    var path11 = __require("path");
-    var IS_WINDOWS_PLATFORM = os4.platform() === "win32";
+    var os5 = __require("os");
+    var path15 = __require("path");
+    var IS_WINDOWS_PLATFORM = os5.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
     var WINDOWS_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()[\]{}]|^!|[!+@](?=\())/g;
@@ -3986,7 +3986,7 @@ var require_path = __commonJS({
     }
     exports.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path11.resolve(cwd, filepath);
+      return path15.resolve(cwd, filepath);
     }
     exports.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -5283,7 +5283,7 @@ var require_braces = __commonJS({
 var require_constants2 = __commonJS({
   "node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
-    var path11 = __require("path");
+    var path15 = __require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DEFAULT_MAX_EXTGLOB_RECURSION = 0;
@@ -5457,7 +5457,7 @@ var require_constants2 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path11.sep,
+      SEP: path15.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -5484,7 +5484,7 @@ var require_constants2 = __commonJS({
 var require_utils2 = __commonJS({
   "node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
-    var path11 = __require("path");
+    var path15 = __require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -5513,7 +5513,7 @@ var require_utils2 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path11.sep === "\\";
+      return win32 === true || path15.sep === "\\";
     };
     exports.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -6877,7 +6877,7 @@ var require_parse2 = __commonJS({
 var require_picomatch = __commonJS({
   "node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
-    var path11 = __require("path");
+    var path15 = __require("path");
     var scan = require_scan();
     var parse = require_parse2();
     var utils = require_utils2();
@@ -6962,7 +6962,7 @@ var require_picomatch = __commonJS({
     };
     picomatch.matchBase = (input, glob, options, posix = utils.isWindows(options)) => {
       const regex = glob instanceof RegExp ? glob : picomatch.makeRe(glob, options);
-      return regex.test(path11.basename(input));
+      return regex.test(path15.basename(input));
     };
     picomatch.isMatch = (str, patterns, options) => picomatch(patterns, options)(str);
     picomatch.parse = (pattern, options) => {
@@ -7189,7 +7189,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
-    var path11 = __require("path");
+    var path15 = __require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -7284,7 +7284,7 @@ var require_pattern = __commonJS({
     }
     exports.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename = path11.basename(pattern);
+      const basename = path15.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename);
     }
     exports.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -7342,7 +7342,7 @@ var require_pattern = __commonJS({
     }
     exports.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute(pattern) {
-      return path11.isAbsolute(pattern);
+      return path15.isAbsolute(pattern);
     }
     exports.isAbsolute = isAbsolute;
   }
@@ -7517,10 +7517,10 @@ var require_utils3 = __commonJS({
     exports.array = array;
     var errno = require_errno();
     exports.errno = errno;
-    var fs8 = require_fs();
-    exports.fs = fs8;
-    var path11 = require_path();
-    exports.path = path11;
+    var fs12 = require_fs();
+    exports.fs = fs12;
+    var path15 = require_path();
+    exports.path = path15;
     var pattern = require_pattern();
     exports.pattern = pattern;
     var stream = require_stream();
@@ -7632,8 +7632,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path11, settings, callback) {
-      settings.fs.lstat(path11, (lstatError, lstat) => {
+    function read(path15, settings, callback) {
+      settings.fs.lstat(path15, (lstatError, lstat) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -7642,7 +7642,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat);
           return;
         }
-        settings.fs.stat(path11, (statError, stat) => {
+        settings.fs.stat(path15, (statError, stat) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -7674,13 +7674,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
-    function read(path11, settings) {
-      const lstat = settings.fs.lstatSync(path11);
+    function read(path15, settings) {
+      const lstat = settings.fs.lstatSync(path15);
       if (!lstat.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat;
       }
       try {
-        const stat = settings.fs.statSync(path11);
+        const stat = settings.fs.statSync(path15);
         if (settings.markSymbolicLink) {
           stat.isSymbolicLink = () => true;
         }
@@ -7702,12 +7702,12 @@ var require_fs2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs8 = __require("fs");
+    var fs12 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs8.lstat,
-      stat: fs8.stat,
-      lstatSync: fs8.lstatSync,
-      statSync: fs8.statSync
+      lstat: fs12.lstat,
+      stat: fs12.stat,
+      lstatSync: fs12.lstatSync,
+      statSync: fs12.statSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -7724,12 +7724,12 @@ var require_settings = __commonJS({
   "node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var fs8 = require_fs2();
+    var fs12 = require_fs2();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLink = this._getValue(this._options.followSymbolicLink, true);
-        this.fs = fs8.createFileSystemAdapter(this._options.fs);
+        this.fs = fs12.createFileSystemAdapter(this._options.fs);
         this.markSymbolicLink = this._getValue(this._options.markSymbolicLink, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
       }
@@ -7751,17 +7751,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports.Settings = settings_1.default;
-    function stat(path11, optionsOrSettingsOrCallback, callback) {
+    function stat(path15, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path11, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path15, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path11, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path15, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.stat = stat;
-    function statSync2(path11, optionsOrSettings) {
+    function statSync2(path15, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path11, settings);
+      return sync.read(path15, settings);
     }
     exports.statSync = statSync2;
     function getSettings(settingsOrOptions = {}) {
@@ -7884,8 +7884,8 @@ var require_utils4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.fs = void 0;
-    var fs8 = require_fs3();
-    exports.fs = fs8;
+    var fs12 = require_fs3();
+    exports.fs = fs12;
   }
 });
 
@@ -7977,16 +7977,16 @@ var require_async2 = __commonJS({
           return;
         }
         const tasks = names.map((name) => {
-          const path11 = common2.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path15 = common2.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done) => {
-            fsStat.stat(path11, settings.fsStatSettings, (error, stats) => {
+            fsStat.stat(path15, settings.fsStatSettings, (error, stats) => {
               if (error !== null) {
                 done(error);
                 return;
               }
               const entry = {
                 name,
-                path: path11,
+                path: path15,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -8080,14 +8080,14 @@ var require_fs4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
-    var fs8 = __require("fs");
+    var fs12 = __require("fs");
     exports.FILE_SYSTEM_ADAPTER = {
-      lstat: fs8.lstat,
-      stat: fs8.stat,
-      lstatSync: fs8.lstatSync,
-      statSync: fs8.statSync,
-      readdir: fs8.readdir,
-      readdirSync: fs8.readdirSync
+      lstat: fs12.lstat,
+      stat: fs12.stat,
+      lstatSync: fs12.lstatSync,
+      statSync: fs12.statSync,
+      readdir: fs12.readdir,
+      readdirSync: fs12.readdirSync
     };
     function createFileSystemAdapter(fsMethods) {
       if (fsMethods === void 0) {
@@ -8104,15 +8104,15 @@ var require_settings2 = __commonJS({
   "node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path11 = __require("path");
+    var path15 = __require("path");
     var fsStat = require_out();
-    var fs8 = require_fs4();
+    var fs12 = require_fs4();
     var Settings = class {
       constructor(_options = {}) {
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
-        this.fs = fs8.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path11.sep);
+        this.fs = fs12.createFileSystemAdapter(this._options.fs);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path15.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -8139,17 +8139,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports.Settings = settings_1.default;
-    function scandir(path11, optionsOrSettingsOrCallback, callback) {
+    function scandir(path15, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path11, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path15, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path11, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path15, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports.scandir = scandir;
-    function scandirSync(path11, optionsOrSettings) {
+    function scandirSync(path15, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path11, settings);
+      return sync.read(path15, settings);
     }
     exports.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -8797,7 +8797,7 @@ var require_settings3 = __commonJS({
   "node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path11 = __require("path");
+    var path15 = __require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -8807,7 +8807,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path11.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path15.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -8869,7 +8869,7 @@ var require_reader2 = __commonJS({
   "node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path11 = __require("path");
+    var path15 = __require("path");
     var fsStat = require_out();
     var utils = require_utils3();
     var Reader = class {
@@ -8882,7 +8882,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path11.resolve(this._settings.cwd, filepath);
+        return path15.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -9298,7 +9298,7 @@ var require_provider = __commonJS({
   "node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var path11 = __require("path");
+    var path15 = __require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error2();
@@ -9312,7 +9312,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path11.resolve(this._settings.cwd, task.base);
+        return path15.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -9493,16 +9493,16 @@ var require_settings4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = void 0;
-    var fs8 = __require("fs");
-    var os4 = __require("os");
-    var CPU_COUNT = Math.max(os4.cpus().length, 1);
+    var fs12 = __require("fs");
+    var os5 = __require("os");
+    var CPU_COUNT = Math.max(os5.cpus().length, 1);
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = {
-      lstat: fs8.lstat,
-      lstatSync: fs8.lstatSync,
-      stat: fs8.stat,
-      statSync: fs8.statSync,
-      readdir: fs8.readdir,
-      readdirSync: fs8.readdirSync
+      lstat: fs12.lstat,
+      lstatSync: fs12.lstatSync,
+      stat: fs12.stat,
+      statSync: fs12.statSync,
+      readdir: fs12.readdir,
+      readdirSync: fs12.readdirSync
     };
     var Settings = class {
       constructor(_options = {}) {
@@ -9653,8 +9653,8 @@ var require_windows = __commonJS({
   "node_modules/isexe/windows.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
-    var fs8 = __require("fs");
-    function checkPathExt(path11, options) {
+    var fs12 = __require("fs");
+    function checkPathExt(path15, options) {
       var pathext = options.pathExt !== void 0 ? options.pathExt : process.env.PATHEXT;
       if (!pathext) {
         return true;
@@ -9665,25 +9665,25 @@ var require_windows = __commonJS({
       }
       for (var i3 = 0; i3 < pathext.length; i3++) {
         var p2 = pathext[i3].toLowerCase();
-        if (p2 && path11.substr(-p2.length).toLowerCase() === p2) {
+        if (p2 && path15.substr(-p2.length).toLowerCase() === p2) {
           return true;
         }
       }
       return false;
     }
-    function checkStat(stat, path11, options) {
+    function checkStat(stat, path15, options) {
       if (!stat.isSymbolicLink() && !stat.isFile()) {
         return false;
       }
-      return checkPathExt(path11, options);
+      return checkPathExt(path15, options);
     }
-    function isexe(path11, options, cb) {
-      fs8.stat(path11, function(er, stat) {
-        cb(er, er ? false : checkStat(stat, path11, options));
+    function isexe(path15, options, cb) {
+      fs12.stat(path15, function(er, stat) {
+        cb(er, er ? false : checkStat(stat, path15, options));
       });
     }
-    function sync(path11, options) {
-      return checkStat(fs8.statSync(path11), path11, options);
+    function sync(path15, options) {
+      return checkStat(fs12.statSync(path15), path15, options);
     }
   }
 });
@@ -9693,14 +9693,14 @@ var require_mode = __commonJS({
   "node_modules/isexe/mode.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
-    var fs8 = __require("fs");
-    function isexe(path11, options, cb) {
-      fs8.stat(path11, function(er, stat) {
+    var fs12 = __require("fs");
+    function isexe(path15, options, cb) {
+      fs12.stat(path15, function(er, stat) {
         cb(er, er ? false : checkStat(stat, options));
       });
     }
-    function sync(path11, options) {
-      return checkStat(fs8.statSync(path11), options);
+    function sync(path15, options) {
+      return checkStat(fs12.statSync(path15), options);
     }
     function checkStat(stat, options) {
       return stat.isFile() && checkMode(stat, options);
@@ -9724,7 +9724,7 @@ var require_mode = __commonJS({
 // node_modules/isexe/index.js
 var require_isexe = __commonJS({
   "node_modules/isexe/index.js"(exports, module) {
-    var fs8 = __require("fs");
+    var fs12 = __require("fs");
     var core;
     if (process.platform === "win32" || global.TESTING_WINDOWS) {
       core = require_windows();
@@ -9733,7 +9733,7 @@ var require_isexe = __commonJS({
     }
     module.exports = isexe;
     isexe.sync = sync;
-    function isexe(path11, options, cb) {
+    function isexe(path15, options, cb) {
       if (typeof options === "function") {
         cb = options;
         options = {};
@@ -9743,7 +9743,7 @@ var require_isexe = __commonJS({
           throw new TypeError("callback not provided");
         }
         return new Promise(function(resolve, reject) {
-          isexe(path11, options || {}, function(er, is) {
+          isexe(path15, options || {}, function(er, is) {
             if (er) {
               reject(er);
             } else {
@@ -9752,7 +9752,7 @@ var require_isexe = __commonJS({
           });
         });
       }
-      core(path11, options || {}, function(er, is) {
+      core(path15, options || {}, function(er, is) {
         if (er) {
           if (er.code === "EACCES" || options && options.ignoreErrors) {
             er = null;
@@ -9762,9 +9762,9 @@ var require_isexe = __commonJS({
         cb(er, is);
       });
     }
-    function sync(path11, options) {
+    function sync(path15, options) {
       try {
-        return core.sync(path11, options || {});
+        return core.sync(path15, options || {});
       } catch (er) {
         if (options && options.ignoreErrors || er.code === "EACCES") {
           return false;
@@ -9780,7 +9780,7 @@ var require_isexe = __commonJS({
 var require_which = __commonJS({
   "node_modules/which/which.js"(exports, module) {
     var isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys";
-    var path11 = __require("path");
+    var path15 = __require("path");
     var COLON = isWindows ? ";" : ":";
     var isexe = require_isexe();
     var getNotFoundError = (cmd) => Object.assign(new Error(`not found: ${cmd}`), { code: "ENOENT" });
@@ -9818,7 +9818,7 @@ var require_which = __commonJS({
           return opt.all && found.length ? resolve(found) : reject(getNotFoundError(cmd));
         const ppRaw = pathEnv[i3];
         const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
-        const pCmd = path11.join(pathPart, cmd);
+        const pCmd = path15.join(pathPart, cmd);
         const p2 = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
         resolve(subStep(p2, i3, 0));
       });
@@ -9845,7 +9845,7 @@ var require_which = __commonJS({
       for (let i3 = 0; i3 < pathEnv.length; i3++) {
         const ppRaw = pathEnv[i3];
         const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
-        const pCmd = path11.join(pathPart, cmd);
+        const pCmd = path15.join(pathPart, cmd);
         const p2 = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
         for (let j2 = 0; j2 < pathExt.length; j2++) {
           const cur = p2 + pathExt[j2];
@@ -9893,7 +9893,7 @@ var require_path_key = __commonJS({
 var require_resolveCommand = __commonJS({
   "node_modules/cross-spawn/lib/util/resolveCommand.js"(exports, module) {
     "use strict";
-    var path11 = __require("path");
+    var path15 = __require("path");
     var which = require_which();
     var getPathKey = require_path_key();
     function resolveCommandAttempt(parsed, withoutPathExt) {
@@ -9911,7 +9911,7 @@ var require_resolveCommand = __commonJS({
       try {
         resolved = which.sync(parsed.command, {
           path: env[getPathKey({ env })],
-          pathExt: withoutPathExt ? path11.delimiter : void 0
+          pathExt: withoutPathExt ? path15.delimiter : void 0
         });
       } catch (e) {
       } finally {
@@ -9920,7 +9920,7 @@ var require_resolveCommand = __commonJS({
         }
       }
       if (resolved) {
-        resolved = path11.resolve(hasCustomCwd ? parsed.options.cwd : "", resolved);
+        resolved = path15.resolve(hasCustomCwd ? parsed.options.cwd : "", resolved);
       }
       return resolved;
     }
@@ -9974,8 +9974,8 @@ var require_shebang_command = __commonJS({
       if (!match) {
         return null;
       }
-      const [path11, argument] = match[0].replace(/#! ?/, "").split(" ");
-      const binary = path11.split("/").pop();
+      const [path15, argument] = match[0].replace(/#! ?/, "").split(" ");
+      const binary = path15.split("/").pop();
       if (binary === "env") {
         return argument;
       }
@@ -9988,16 +9988,16 @@ var require_shebang_command = __commonJS({
 var require_readShebang = __commonJS({
   "node_modules/cross-spawn/lib/util/readShebang.js"(exports, module) {
     "use strict";
-    var fs8 = __require("fs");
+    var fs12 = __require("fs");
     var shebangCommand = require_shebang_command();
     function readShebang(command) {
       const size = 150;
       const buffer = Buffer.alloc(size);
       let fd;
       try {
-        fd = fs8.openSync(command, "r");
-        fs8.readSync(fd, buffer, 0, size, 0);
-        fs8.closeSync(fd);
+        fd = fs12.openSync(command, "r");
+        fs12.readSync(fd, buffer, 0, size, 0);
+        fs12.closeSync(fd);
       } catch (e) {
       }
       return shebangCommand(buffer.toString());
@@ -10010,7 +10010,7 @@ var require_readShebang = __commonJS({
 var require_parse3 = __commonJS({
   "node_modules/cross-spawn/lib/parse.js"(exports, module) {
     "use strict";
-    var path11 = __require("path");
+    var path15 = __require("path");
     var resolveCommand = require_resolveCommand();
     var escape = require_escape();
     var readShebang = require_readShebang();
@@ -10035,7 +10035,7 @@ var require_parse3 = __commonJS({
       const needsShell = !isExecutableRegExp.test(commandFile);
       if (parsed.options.forceShell || needsShell) {
         const needsDoubleEscapeMetaChars = isCmdShimRegExp.test(commandFile);
-        parsed.command = path11.normalize(parsed.command);
+        parsed.command = path15.normalize(parsed.command);
         parsed.command = escape.command(parsed.command);
         parsed.args = parsed.args.map((arg) => escape.argument(arg, needsDoubleEscapeMetaChars));
         const shellCommand = [parsed.command].concat(parsed.args).join(" ");
@@ -10164,8 +10164,8 @@ var {
 
 // apps/agent/src/cli.ts
 var import_picocolors3 = __toESM(require_picocolors(), 1);
-import { promises as fs7 } from "node:fs";
-import os3 from "node:os";
+import { promises as fs11 } from "node:fs";
+import os4 from "node:os";
 import { randomUUID } from "node:crypto";
 
 // node_modules/zod/v3/external.js
@@ -10646,8 +10646,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path11, errorMaps, issueData } = params;
-  const fullPath = [...path11, ...issueData.path || []];
+  const { data, path: path15, errorMaps, issueData } = params;
+  const fullPath = [...path15, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -10763,11 +10763,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path11, key) {
+  constructor(parent, value, path15, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path11;
+    this._path = path15;
     this._key = key;
   }
   get path() {
@@ -14240,8 +14240,8 @@ function parseGithubUrl(input) {
   const head = seg[0];
   if (head === "tree" || head === "blob") {
     const ref = seg[1];
-    const path11 = seg.slice(2).join("/");
-    if (path11) return { ...base, kind: "subdir", ref, path: path11 };
+    const path15 = seg.slice(2).join("/");
+    if (path15) return { ...base, kind: "subdir", ref, path: path15 };
     return { ...base, kind: "repo", ref };
   }
   if (head === "pull" && seg[1]) return { ...base, kind: "pr", prNumber: Number(seg[1]) };
@@ -14279,8 +14279,8 @@ var AI_STEPS = ["docs", "claude_md"];
 var Pipeline = external_exports.enum(["quick", "docs", "full", "skill", "custom"]);
 var PIPELINE_STEPS = {
   quick: ["clone", "analyze", "summary"],
-  docs: ["clone", "analyze", "summary", "docs", "archive"],
-  full: ["clone", "analyze", "summary", "docs", "install", "test", "archive"],
+  docs: ["clone", "analyze", "summary", "docs", "claude_md"],
+  full: ["clone", "analyze", "summary", "docs", "claude_md", "install", "test"],
   skill: ["clone", "analyze", "summary", "skill"],
   custom: []
 };
@@ -14363,7 +14363,7 @@ var RepoRecord = external_exports.object({
   clonedAt: external_exports.string(),
   updatedAt: external_exports.string()
 });
-var ArtifactKind = external_exports.enum(["summary", "docs_ko", "tree", "env_example", "skill_md", "claude_md", "test_report"]);
+var ArtifactKind = external_exports.enum(["summary", "docs_ko", "tree", "env_example", "skill_md", "claude_md", "test_report", "mcp_report"]);
 var Artifact = external_exports.object({
   id: external_exports.string().uuid(),
   repoId: external_exports.string().uuid(),
@@ -15044,8 +15044,8 @@ function toLinesWithContent(input = "", trimmed2 = true, separator = "\n") {
 function forEachLineWithContent(input, callback) {
   return toLinesWithContent(input, true).map((line) => callback(line));
 }
-function folderExists(path11) {
-  return (0, import_file_exists.exists)(path11, import_file_exists.FOLDER);
+function folderExists(path15) {
+  return (0, import_file_exists.exists)(path15, import_file_exists.FOLDER);
 }
 function append(target, item) {
   if (Array.isArray(target)) {
@@ -15447,8 +15447,8 @@ function checkIsRepoRootTask() {
     commands,
     format: "utf-8",
     onError,
-    parser(path11) {
-      return /^\.(git)?$/.test(path11.trim());
+    parser(path15) {
+      return /^\.(git)?$/.test(path15.trim());
     }
   };
 }
@@ -15882,11 +15882,11 @@ function parseGrep(grep) {
   const paths = /* @__PURE__ */ new Set();
   const results = {};
   forEachLineWithContent(grep, (input) => {
-    const [path11, line, preview] = input.split(NULL);
-    paths.add(path11);
-    (results[path11] = results[path11] || []).push({
+    const [path15, line, preview] = input.split(NULL);
+    paths.add(path15);
+    (results[path15] = results[path15] || []).push({
       line: asNumber(line),
-      path: path11,
+      path: path15,
       preview
     });
   });
@@ -16650,14 +16650,14 @@ var init_hash_object = __esm2({
     init_task();
   }
 });
-function parseInit(bare, path11, text) {
+function parseInit(bare, path15, text) {
   const response = String(text).trim();
   let result;
   if (result = initResponseRegex.exec(response)) {
-    return new InitSummary(bare, path11, false, result[1]);
+    return new InitSummary(bare, path15, false, result[1]);
   }
   if (result = reInitResponseRegex.exec(response)) {
-    return new InitSummary(bare, path11, true, result[1]);
+    return new InitSummary(bare, path15, true, result[1]);
   }
   let gitDir = "";
   const tokens = response.split(" ");
@@ -16668,7 +16668,7 @@ function parseInit(bare, path11, text) {
       break;
     }
   }
-  return new InitSummary(bare, path11, /^re/i.test(response), gitDir);
+  return new InitSummary(bare, path15, /^re/i.test(response), gitDir);
 }
 var InitSummary;
 var initResponseRegex;
@@ -16677,9 +16677,9 @@ var init_InitSummary = __esm2({
   "src/lib/responses/InitSummary.ts"() {
     "use strict";
     InitSummary = class {
-      constructor(bare, path11, existing, gitDir) {
+      constructor(bare, path15, existing, gitDir) {
         this.bare = bare;
-        this.path = path11;
+        this.path = path15;
         this.existing = existing;
         this.gitDir = gitDir;
       }
@@ -16691,7 +16691,7 @@ var init_InitSummary = __esm2({
 function hasBareCommand(command) {
   return command.includes(bareCommand);
 }
-function initTask(bare = false, path11, customArgs) {
+function initTask(bare = false, path15, customArgs) {
   const commands = ["init", ...customArgs];
   if (bare && !hasBareCommand(commands)) {
     commands.splice(1, 0, bareCommand);
@@ -16700,7 +16700,7 @@ function initTask(bare = false, path11, customArgs) {
     commands,
     format: "utf-8",
     parser(text) {
-      return parseInit(commands.includes("--bare"), path11, text);
+      return parseInit(commands.includes("--bare"), path15, text);
     }
   };
 }
@@ -17515,12 +17515,12 @@ var init_FileStatusSummary = __esm2({
     "use strict";
     fromPathRegex = /^(.+)\0(.+)$/;
     FileStatusSummary = class {
-      constructor(path11, index, working_dir) {
-        this.path = path11;
+      constructor(path15, index, working_dir) {
+        this.path = path15;
         this.index = index;
         this.working_dir = working_dir;
         if (index === "R" || working_dir === "R") {
-          const detail = fromPathRegex.exec(path11) || [null, path11, path11];
+          const detail = fromPathRegex.exec(path15) || [null, path15, path15];
           this.from = detail[2] || "";
           this.path = detail[1] || "";
         }
@@ -17551,14 +17551,14 @@ function splitLine(result, lineStr) {
     default:
       return;
   }
-  function data(index, workingDir, path11) {
+  function data(index, workingDir, path15) {
     const raw = `${index}${workingDir}`;
     const handler = parsers6.get(raw);
     if (handler) {
-      handler(result, path11);
+      handler(result, path15);
     }
     if (raw !== "##" && raw !== "!!") {
-      result.files.push(new FileStatusSummary(path11, index, workingDir));
+      result.files.push(new FileStatusSummary(path15, index, workingDir));
     }
   }
 }
@@ -17909,9 +17909,9 @@ var init_simple_git_api = __esm2({
           next
         );
       }
-      hashObject(path11, write) {
+      hashObject(path15, write) {
         return this._runTask(
-          hashObjectTask(path11, write === true),
+          hashObjectTask(path15, write === true),
           trailingFunctionArgument(arguments)
         );
       }
@@ -18265,8 +18265,8 @@ var init_branch = __esm2({
   }
 });
 function toPath(input) {
-  const path11 = input.trim().replace(/^["']|["']$/g, "");
-  return path11 && normalize(path11);
+  const path15 = input.trim().replace(/^["']|["']$/g, "");
+  return path15 && normalize(path15);
 }
 var parseCheckIgnore;
 var init_CheckIgnore = __esm2({
@@ -18551,8 +18551,8 @@ __export2(sub_module_exports, {
   subModuleTask: () => subModuleTask,
   updateSubModuleTask: () => updateSubModuleTask
 });
-function addSubModuleTask(repo, path11) {
-  return subModuleTask(["add", repo, path11]);
+function addSubModuleTask(repo, path15) {
+  return subModuleTask(["add", repo, path15]);
 }
 function initSubModuleTask(customArgs) {
   return subModuleTask(["init", ...customArgs]);
@@ -18866,8 +18866,8 @@ var require_git = __commonJS2({
       }
       return this._runTask(straightThroughStringTask2(command, this._trimmed), next);
     };
-    Git2.prototype.submoduleAdd = function(repo, path11, then) {
-      return this._runTask(addSubModuleTask2(repo, path11), trailingFunctionArgument2(arguments));
+    Git2.prototype.submoduleAdd = function(repo, path15, then) {
+      return this._runTask(addSubModuleTask2(repo, path15), trailingFunctionArgument2(arguments));
     };
     Git2.prototype.submoduleUpdate = function(args, then) {
       return this._runTask(
@@ -24117,13 +24117,13 @@ var logOutputSync = ({ serializedResult, fdNumber, state, verboseInfo, encoding,
   }
 };
 var writeToFiles = (serializedResult, stdioItems, outputFiles) => {
-  for (const { path: path11, append: append2 } of stdioItems.filter(({ type }) => FILE_TYPES.has(type))) {
-    const pathString = typeof path11 === "string" ? path11 : path11.toString();
+  for (const { path: path15, append: append2 } of stdioItems.filter(({ type }) => FILE_TYPES.has(type))) {
+    const pathString = typeof path15 === "string" ? path15 : path15.toString();
     if (append2 || outputFiles.has(pathString)) {
-      appendFileSync(path11, serializedResult);
+      appendFileSync(path15, serializedResult);
     } else {
       outputFiles.add(pathString);
-      writeFileSync(path11, serializedResult);
+      writeFileSync(path15, serializedResult);
     }
   }
 };
@@ -26558,8 +26558,8 @@ var pickFolderStep = {
     log(ctx, "pick_folder", "PC \uC5D0 \uD3F4\uB354 \uC120\uD0DD\uCC3D\uC744 \uB744\uC6C1\uB2C8\uB2E4");
     let picked = "";
     if (process.platform === "win32") {
-      const os4 = await import("node:os");
-      const tmp = path9.join(os4.tmpdir(), `everygithub-pick-${Date.now()}`);
+      const os5 = await import("node:os");
+      const tmp = path9.join(os5.tmpdir(), `everygithub-pick-${Date.now()}`);
       const scriptPath = tmp + ".ps1";
       const resultPath = tmp + ".txt";
       const initial = ctx.workspacePath.replace(/'/g, "''");
@@ -26614,9 +26614,9 @@ var pickFolderStep = {
 var listDirsStep = {
   name: "list_dirs",
   async run(ctx) {
-    const os4 = await import("node:os");
+    const os5 = await import("node:os");
     const target = (ctx.job.options.targetDir ?? "").trim();
-    const home = os4.homedir();
+    const home = os5.homedir();
     const shortcuts = [];
     for (const [name, rel] of [["\uBC14\uD0D5\uD654\uBA74", "Desktop"], ["\uBB38\uC11C", "Documents"], ["\uB2E4\uC6B4\uB85C\uB4DC", "Downloads"]]) {
       const p2 = path9.join(home, rel);
@@ -26663,6 +26663,484 @@ var listDirsStep = {
   }
 };
 
+// packages/core/src/steps/docs.ts
+import { promises as fs6 } from "node:fs";
+import path11 from "node:path";
+
+// packages/core/src/ai.ts
+var DEFAULT_MODEL = "claude-sonnet-4-5";
+async function askClaude(prompt, opts) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": opts.apiKey,
+      "anthropic-version": "2023-06-01"
+    },
+    body: JSON.stringify({
+      model: opts.model ?? DEFAULT_MODEL,
+      max_tokens: opts.maxTokens ?? 6e3,
+      ...opts.system ? { system: opts.system } : {},
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    let msg = `Anthropic API ${res.status}`;
+    try {
+      msg += ": " + (JSON.parse(body).error?.message ?? body.slice(0, 300));
+    } catch {
+      msg += ": " + body.slice(0, 300);
+    }
+    if (res.status === 401) msg = "Claude API \uD0A4\uAC00 \uC62C\uBC14\uB974\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4 (401). \uC124\uC815 \u2192 AI \uC5D0\uC11C \uD0A4\uB97C \uD655\uC778\uD558\uC138\uC694.";
+    if (res.status === 429) msg = "Claude API \uC0AC\uC6A9\uB7C9 \uD55C\uB3C4(429). \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD558\uC138\uC694.";
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  return data.content.filter((c5) => c5.type === "text").map((c5) => c5.text ?? "").join("\n").trim();
+}
+function stripFence(md) {
+  const m = md.match(/^```(?:markdown|md)?\s*\n([\s\S]*?)\n```\s*$/);
+  return m ? m[1] : md;
+}
+
+// packages/core/src/steps/repo-context.ts
+var import_fast_glob2 = __toESM(require_out4(), 1);
+import { promises as fs5 } from "node:fs";
+import path10 from "node:path";
+async function collectRepoContext(ctx) {
+  const root = analysisRoot(ctx);
+  const readme = await readFirst(root, ["README.md", "readme.md", "README.MD", "Readme.md", "README.rst", "README.txt", "README"]);
+  const pkg = await readFirst(root, ["package.json"]);
+  const pyproject = await readFirst(root, ["pyproject.toml"]);
+  const cargo = await readFirst(root, ["Cargo.toml"]);
+  const compose = await readFirst(root, ["docker-compose.yml", "compose.yaml"]);
+  const envExample = await readFirst(root, [".env.example", ".env.sample"]);
+  const docs = await (0, import_fast_glob2.default)(["docs/**/*.md", "doc/**/*.md"], { cwd: root, onlyFiles: true }).then((l) => l.slice(0, 5));
+  let docsText = "";
+  for (const d of docs) docsText += `
+
+--- ${d} ---
+` + (await fs5.readFile(path10.join(root, d), "utf8")).slice(0, 4e3);
+  const { source } = ctx.job;
+  return {
+    root,
+    repoName: `${source.owner}/${source.name}`,
+    url: source.url,
+    readme: clip(readme, 4e4),
+    manifest: clip(pkg ?? pyproject ?? cargo ?? "", 6e3),
+    compose: clip(compose ?? "", 3e3),
+    envExample: clip(envExample ?? "", 2e3),
+    docsText: clip(docsText, 12e3),
+    tree: ctx.tree ?? "",
+    stack: ctx.stack,
+    license: ctx.license ?? null
+  };
+}
+function analysisRoot(ctx) {
+  const { source } = ctx.job;
+  if (!ctx.localPath) throw new Error("clone \uC2A4\uD15D\uC774 \uBA3C\uC800 \uC2E4\uD589\uB418\uC5B4\uC57C \uD569\uB2C8\uB2E4");
+  return source.kind === "subdir" && source.path ? path10.join(ctx.localPath, source.path) : ctx.localPath;
+}
+async function readFirst(root, names) {
+  for (const n2 of names) {
+    try {
+      return await fs5.readFile(path10.join(root, n2), "utf8");
+    } catch {
+    }
+  }
+  return null;
+}
+var clip = (s, n2) => (s ?? "").length > n2 ? (s ?? "").slice(0, n2) + "\n\u2026(\uC0DD\uB7B5)" : s ?? "";
+function contextBlock(c5) {
+  return [
+    `# \uB808\uD3EC: ${c5.repoName}`,
+    `URL: ${c5.url}`,
+    `\uB77C\uC774\uC120\uC2A4: ${c5.license ?? "\uC5C6\uC74C"}`,
+    `\uC2A4\uD0DD: ${JSON.stringify({ languages: c5.stack?.languages, framework: c5.stack?.framework, packageManager: c5.stack?.packageManager, runtime: c5.stack?.runtime, scripts: c5.stack?.scripts, isMcpServer: c5.stack?.isMcpServer, isClaudeSkill: c5.stack?.isClaudeSkill, hasTests: c5.stack?.hasTests, hasDocker: c5.stack?.hasDocker, envKeys: c5.stack?.envKeys })}`,
+    "",
+    "## \uD3F4\uB354 \uAD6C\uC870",
+    "```",
+    c5.tree,
+    "```",
+    c5.manifest ? "\n## \uB9E4\uB2C8\uD398\uC2A4\uD2B8 (package.json / pyproject \uB4F1)\n```\n" + c5.manifest + "\n```" : "",
+    c5.envExample ? "\n## .env.example\n```\n" + c5.envExample + "\n```" : "",
+    c5.compose ? "\n## docker compose\n```\n" + c5.compose + "\n```" : "",
+    "\n## README \uC6D0\uBB38\n" + (c5.readme || "(README \uC5C6\uC74C)"),
+    c5.docsText ? "\n## docs/ \uBC1C\uCDCC" + c5.docsText : ""
+  ].join("\n");
+}
+
+// packages/core/src/steps/docs.ts
+var SYSTEM = `\uB2F9\uC2E0\uC740 \uC624\uD508\uC18C\uC2A4 \uB808\uD3EC\uB97C \uD55C\uAD6D \uAC1C\uBC1C\uC790\uC5D0\uAC8C \uC124\uBA85\uD558\uB294 \uD14C\uD06C\uB2C8\uCEEC \uB77C\uC774\uD130\uC785\uB2C8\uB2E4.
+README \uB97C \uADF8\uB300\uB85C \uBC88\uC5ED\uD558\uC9C0 \uB9D0\uACE0, \uC2E4\uC81C\uB85C \uC774 \uB808\uD3EC\uB97C "\uBC1B\uC544\uC11C \uB3CC\uB824\uBCF4\uB294 \uC0AC\uB78C" \uC21C\uC11C\uB300\uB85C \uC7AC\uAD6C\uC131\uD558\uC138\uC694.
+\uC0AC\uC2E4\uC740 README\xB7\uB9E4\uB2C8\uD398\uC2A4\uD2B8\uC5D0 \uC788\uB294 \uAC83\uB9CC \uC4F0\uACE0, \uC5C6\uB294 \uB0B4\uC6A9\uC740 \uC9C0\uC5B4\uB0B4\uC9C0 \uB9D0\uACE0 "README \uC5D0 \uBA85\uC2DC\uB418\uC9C0 \uC54A\uC74C"\uC774\uB77C\uACE0 \uC801\uC73C\uC138\uC694.
+\uCF54\uB4DC\uBE14\uB85D\xB7\uBA85\uB839\uC5B4\xB7URL\xB7\uC635\uC158 \uC774\uB984\uC740 \uC6D0\uBB38 \uADF8\uB300\uB85C \uC720\uC9C0\uD569\uB2C8\uB2E4. \uCD9C\uB825\uC740 \uB9C8\uD06C\uB2E4\uC6B4\uB9CC, \uCF54\uB4DC\uD39C\uC2A4\uB85C \uC804\uCCB4\uB97C \uAC10\uC2F8\uC9C0 \uB9C8\uC138\uC694.`;
+var docsStep = {
+  name: "docs",
+  async run(ctx) {
+    if (!ctx.anthropicApiKey) {
+      ctx.emit({ step: "docs", level: "skipped", payload: { reason: "no_api_key" } });
+      return;
+    }
+    const c5 = await collectRepoContext(ctx);
+    log(ctx, "docs", `\uD55C\uAD6D\uC5B4 \uC124\uBA85\uC11C \uC0DD\uC131 \uC911 (README ${c5.readme.length.toLocaleString()}\uC790)`);
+    const prompt = `${contextBlock(c5)}
+
+---
+\uC704 \uB808\uD3EC\uC758 **\uD55C\uAD6D\uC5B4 \uC124\uBA85\uC11C**\uB97C \uC544\uB798 \uAD6C\uC870\uB85C \uC791\uC131\uD558\uC138\uC694. \uAC01 \uC139\uC158 \uC81C\uBAA9\uC740 \uADF8\uB300\uB85C \uC0AC\uC6A9\uD569\uB2C8\uB2E4.
+
+# ${c5.repoName} \uC124\uBA85\uC11C
+> \uD55C \uC904 \uC694\uC57D (\uC774 \uB808\uD3EC\uAC00 \uBB34\uC5C7\uC774\uACE0 \uB204\uAD6C\uC5D0\uAC8C \uD544\uC694\uD55C\uC9C0)
+
+## \uC774\uAC8C \uBB54\uAC00\uC694
+- \uD575\uC2EC \uAE30\uB2A5 3~6\uAC1C, \uC5B4\uB5A4 \uBB38\uC81C\uB97C \uD478\uB294\uC9C0, \uBE44\uC2B7\uD55C \uB3C4\uAD6C\uC640 \uB2E4\uB978 \uC810(README \uC5D0 \uC788\uC73C\uBA74)
+
+## \uC900\uBE44\uBB3C
+- \uD544\uC694\uD55C \uB7F0\uD0C0\uC784/\uBC84\uC804, \uACC4\uC815, API \uD0A4 \uB4F1. \uD544\uC694 \uD658\uACBD\uBCC0\uC218\uB294 \uD45C\uB85C (\uBCC0\uC218\uBA85 / \uC6A9\uB3C4 / \uD544\uC218 \uC5EC\uBD80)
+
+## \uC124\uCE58
+- \uC2E4\uC81C \uBA85\uB839\uC5B4 \uC21C\uC11C\uB300\uB85C. \uD328\uD0A4\uC9C0 \uB9E4\uB2C8\uC800\uB294 \uAC10\uC9C0\uB41C \uAC83(${c5.stack?.packageManager ?? "unknown"}) \uAE30\uC900
+
+## \uC124\uC815
+- \uC124\uC815 \uD30C\uC77C\xB7\uD658\uACBD\uBCC0\uC218\xB7\uC635\uC158 \uC124\uBA85. \uC5C6\uC73C\uBA74 "\uBCC4\uB3C4 \uC124\uC815 \uC5C6\uC74C"
+
+## \uCCAB \uC2E4\uD589
+- \uAC00\uC7A5 \uC9E7\uAC8C \uB3D9\uC791\uC744 \uD655\uC778\uD558\uB294 \uBA85\uB839\uACFC \uAE30\uB300 \uACB0\uACFC
+
+## \uC790\uC8FC \uC4F0\uB294 \uC0AC\uC6A9\uBC95
+- \uB300\uD45C \uBA85\uB839/\uCF54\uB4DC \uC608\uC2DC 3~5\uAC1C, \uAC01 \uC608\uC2DC\uC5D0 \uD55C \uC904 \uC124\uBA85
+
+## \uD074\uB85C\uB4DC\uCF54\uB4DC/AI \uB3C4\uAD6C\uC640 \uD568\uAED8 \uC4F0\uAE30
+- MCP \uC11C\uBC84\xB7\uC2A4\uD0AC\xB7CLI \uB85C \uC5F0\uB3D9 \uAC00\uB2A5\uD55C\uC9C0, \uAC00\uB2A5\uD558\uBA74 \uC5B4\uB5BB\uAC8C(README \uADFC\uAC70\uAC00 \uC788\uC744 \uB54C\uB9CC). \uADFC\uAC70 \uC5C6\uC73C\uBA74 "\uD574\uB2F9 \uC5C6\uC74C"
+
+## \uC8FC\uC758\uD560 \uC810
+- \uB77C\uC774\uC120\uC2A4(${c5.license ?? "\uC5C6\uC74C"}) \uC758\uBBF8, \uC124\uCE58 \uC2A4\uD06C\uB9BD\uD2B8(${c5.stack?.installScripts?.join(", ") || "\uC5C6\uC74C"}), \uC54C\uB824\uC9C4 \uC81C\uD55C, \uBCF4\uC548\uC0C1 \uC720\uC758\uC810
+
+## \uCC38\uACE0 \uB9C1\uD06C
+- \uC6D0\uBB38 README, \uBB38\uC11C, \uC774\uC288 \uB4F1 README \uC5D0 \uC788\uB294 \uB9C1\uD06C\uB9CC`;
+    const md = stripFence(await askClaude(prompt, { apiKey: ctx.anthropicApiKey, system: SYSTEM, maxTokens: 7e3 }));
+    ctx.artifacts.docs_ko = md;
+    try {
+      const out = path11.join(c5.root, "EVERYGITHUB.ko.md");
+      await fs6.writeFile(out, md, "utf8");
+      log(ctx, "docs", `\uC124\uBA85\uC11C \uC800\uC7A5: ${out}`);
+    } catch {
+    }
+    ctx.emit({ step: "docs", level: "result", payload: { chars: md.length } });
+  }
+};
+
+// packages/core/src/steps/claude.ts
+import { promises as fs7 } from "node:fs";
+import os2 from "node:os";
+import path12 from "node:path";
+var CLAUDE_DIR = path12.join(os2.homedir(), ".claude");
+var skillSlug = (owner, name) => `${owner}-${name}`.toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-");
+async function exists3(p2) {
+  try {
+    await fs7.access(p2);
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function hasClaudeCli() {
+  try {
+    await execa("claude", ["--version"], { timeout: 8e3 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+var skillStep = {
+  name: "skill",
+  async run(ctx) {
+    const c5 = await collectRepoContext(ctx);
+    const { source } = ctx.job;
+    const slug = skillSlug(source.owner, source.name);
+    const dest = path12.join(CLAUDE_DIR, "skills", slug);
+    let skillMd;
+    const own = path12.join(c5.root, "SKILL.md");
+    if (await exists3(own)) {
+      skillMd = await fs7.readFile(own, "utf8");
+      log(ctx, "skill", "\uB808\uD3EC\uC758 SKILL.md \uB97C \uADF8\uB300\uB85C \uB4F1\uB85D\uD569\uB2C8\uB2E4");
+    } else if (ctx.anthropicApiKey) {
+      log(ctx, "skill", "SKILL.md \uC0DD\uC131 \uC911 (AI)");
+      const prompt = `${contextBlock(c5)}
+
+---
+\uC774 \uB808\uD3EC\uB97C Claude Code \uC758 **\uC2A4\uD0AC(SKILL.md)** \uB85C \uB9CC\uB4DC\uC138\uC694. \uC2A4\uD0AC\uC740 Claude \uAC00 "\uC5B8\uC81C \uC774 \uB3C4\uAD6C\uB97C \uC368\uC57C \uD558\uB294\uC9C0"\uC640 "\uC5B4\uB5BB\uAC8C \uC4F0\uB294\uC9C0"\uB97C \uC544\uB294 \uC9E7\uC740 \uC9C0\uCE68\uC11C\uC785\uB2C8\uB2E4.
+\uD615\uC2DD (\uADF8\uB300\uB85C \uC9C0\uD0AC \uAC83):
+---
+name: ${slug}
+description: <\uD55C \uC904. \uC5B4\uB5A4 \uC694\uCCAD\uC774 \uC624\uBA74 \uC774 \uC2A4\uD0AC\uC744 \uC368\uC57C \uD558\uB294\uC9C0 \uD2B8\uB9AC\uAC70 \uD0A4\uC6CC\uB4DC\uB97C \uD3EC\uD568\uD574 200\uC790 \uC774\uB0B4, \uD55C\uAD6D\uC5B4>
+---
+# ${c5.repoName}
+## \uC5B8\uC81C \uC4F0\uB098
+## \uC124\uCE58 \uC704\uCE58
+- \uB85C\uCEEC \uACBD\uB85C: ${c5.root}
+## \uC2E4\uD589 \uBC29\uBC95
+- \uC2E4\uC81C \uBA85\uB839\uC5B4 (README \uADFC\uAC70). \uC124\uCE58\uAC00 \uD544\uC694\uD558\uBA74 \uADF8 \uBA85\uB839 \uBA3C\uC800
+## \uC790\uC8FC \uC4F0\uB294 \uD328\uD134
+- 3~5\uAC1C \uC608\uC2DC
+## \uC8FC\uC758
+- \uD658\uACBD\uBCC0\uC218, \uB77C\uC774\uC120\uC2A4(${c5.license ?? "\uC5C6\uC74C"}), \uC81C\uD55C\uC0AC\uD56D
+\uB9C8\uD06C\uB2E4\uC6B4\uB9CC \uCD9C\uB825\uD558\uACE0 \uCF54\uB4DC\uD39C\uC2A4\uB85C \uC804\uCCB4\uB97C \uAC10\uC2F8\uC9C0 \uB9C8\uC138\uC694.`;
+      skillMd = stripFence(await askClaude(prompt, { apiKey: ctx.anthropicApiKey, maxTokens: 3e3 }));
+    } else {
+      log(ctx, "skill", "SKILL.md \uD15C\uD50C\uB9BF \uC0DD\uC131 (AI \uD0A4 \uC5C6\uC74C)");
+      const scripts = Object.entries(c5.stack?.scripts ?? {}).map(([k2, v]) => `- \`${c5.stack?.packageManager ?? "npm"} run ${k2}\` \u2192 ${v}`).join("\n");
+      skillMd = `---
+name: ${slug}
+description: ${c5.repoName} \uB808\uD3EC\uB97C \uC0AC\uC6A9\uD560 \uB54C. \uB85C\uCEEC \uACBD\uB85C ${c5.root}. \uAD00\uB828 \uC694\uCCAD(${source.name})\uC774 \uC624\uBA74 \uC774 \uC2A4\uD0AC\uC744 \uCC38\uACE0.
+---
+# ${c5.repoName}
+- \uC6D0\uBCF8: ${c5.url}
+- \uB85C\uCEEC \uACBD\uB85C: \`${c5.root}\`
+- \uC2A4\uD0DD: ${(c5.stack?.languages ?? []).join(", ")} ${c5.stack?.framework ?? ""} \xB7 ${c5.stack?.packageManager ?? ""}
+- \uB77C\uC774\uC120\uC2A4: ${c5.license ?? "\uC5C6\uC74C"}
+
+## \uC2A4\uD06C\uB9BD\uD2B8
+${scripts || "- (package.json scripts \uC5C6\uC74C)"}
+
+## README \uBC1C\uCDCC
+${c5.readme.slice(0, 3e3)}
+`;
+    }
+    await fs7.mkdir(dest, { recursive: true });
+    await fs7.writeFile(path12.join(dest, "SKILL.md"), skillMd, "utf8");
+    ctx.artifacts.skill_md = skillMd;
+    log(ctx, "skill", `\uB4F1\uB85D \uC644\uB8CC: ${dest}`);
+    ctx.emit({ step: "skill", level: "result", payload: { path: dest, slug } });
+  }
+};
+var claudeMdStep = {
+  name: "claude_md",
+  async run(ctx) {
+    if (!ctx.anthropicApiKey) {
+      ctx.emit({ step: "claude_md", level: "skipped", payload: { reason: "no_api_key" } });
+      return;
+    }
+    const c5 = await collectRepoContext(ctx);
+    log(ctx, "claude_md", "CLAUDE.md \uC0DD\uC131 \uC911");
+    const prompt = `${contextBlock(c5)}
+
+---
+\uC774 \uB808\uD3EC \uB8E8\uD2B8\uC5D0 \uB458 **CLAUDE.md** \uB97C \uC791\uC131\uD558\uC138\uC694. Claude Code \uAC00 \uC774 \uD504\uB85C\uC81D\uD2B8\uC5D0\uC11C \uC791\uC5C5\uD560 \uB54C \uC77D\uB294 \uD30C\uC77C\uC785\uB2C8\uB2E4. \uAC04\uACB0\uD558\uAC8C(120\uC904 \uC774\uB0B4), \uC0AC\uC2E4\uB9CC.
+\uC139\uC158: # \uD504\uB85C\uC81D\uD2B8 \uAC1C\uC694 / ## \uAD6C\uC870(\uD575\uC2EC \uD3F4\uB354\xB7\uD30C\uC77C \uC5ED\uD560) / ## \uBE4C\uB4DC\xB7\uC2E4\uD589\xB7\uD14C\uC2A4\uD2B8 \uBA85\uB839 / ## \uCF54\uB529 \uADDC\uCE59(\uAC10\uC9C0\uB418\uBA74: \uB9B0\uD130, \uD3EC\uB9F7\uD130, \uC5B8\uC5B4 \uBC84\uC804) / ## \uC8FC\uC758\uC0AC\uD56D(\uD658\uACBD\uBCC0\uC218, \uC678\uBD80 \uC11C\uBE44\uC2A4, \uD558\uC9C0 \uB9D0\uC544\uC57C \uD560 \uAC83).
+\uB9C8\uD06C\uB2E4\uC6B4\uB9CC, \uCF54\uB4DC\uD39C\uC2A4\uB85C \uC804\uCCB4\uB97C \uAC10\uC2F8\uC9C0 \uB9C8\uC138\uC694.`;
+    const md = stripFence(await askClaude(prompt, { apiKey: ctx.anthropicApiKey, maxTokens: 3e3 }));
+    const out = path12.join(c5.root, "CLAUDE.md");
+    if (await exists3(out)) {
+      await fs7.writeFile(path12.join(c5.root, "CLAUDE.everygithub.md"), md, "utf8");
+      log(ctx, "claude_md", "\uAE30\uC874 CLAUDE.md \uAC00 \uC788\uC5B4 CLAUDE.everygithub.md \uB85C \uC800\uC7A5");
+    } else {
+      await fs7.writeFile(out, md, "utf8");
+      log(ctx, "claude_md", `\uC800\uC7A5: ${out}`);
+    }
+    ctx.artifacts.claude_md = md;
+    ctx.emit({ step: "claude_md", level: "result", payload: { chars: md.length } });
+  }
+};
+var mcpStep = {
+  name: "mcp",
+  async run(ctx) {
+    const root = analysisRoot(ctx);
+    const { source } = ctx.job;
+    const name = source.name.toLowerCase().replace(/[^a-z0-9-]/g, "-");
+    const s = ctx.stack;
+    let command = "", args = [];
+    const pkgRaw = await fs7.readFile(path12.join(root, "package.json"), "utf8").catch(() => null);
+    if (pkgRaw) {
+      const pkg = JSON.parse(pkgRaw);
+      const bin = typeof pkg.bin === "string" ? pkg.bin : pkg.bin ? Object.values(pkg.bin)[0] : null;
+      const entry = bin ?? pkg.main ?? (await exists3(path12.join(root, "dist", "index.js")) ? "dist/index.js" : null) ?? (await exists3(path12.join(root, "build", "index.js")) ? "build/index.js" : null);
+      if (entry) {
+        command = "node";
+        args = [path12.join(root, entry)];
+      } else if (pkg.scripts?.start) {
+        command = s?.packageManager === "pnpm" ? "pnpm" : "npm";
+        args = ["run", "start", "--prefix", root];
+      }
+    } else if (await exists3(path12.join(root, "pyproject.toml"))) {
+      command = await exists3(path12.join(root, "uv.lock")) ? "uv" : "python";
+      args = command === "uv" ? ["--directory", root, "run", name] : ["-m", name.replace(/-/g, "_")];
+    }
+    if (!command) throw new Error("MCP \uC11C\uBC84 \uC2E4\uD589 \uBA85\uB839\uC744 \uCC3E\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4 (bin/main/start \uC5C6\uC74C). README \uC758 \uC2E4\uD589 \uBC29\uBC95\uC744 \uD655\uC778\uD558\uC138\uC694.");
+    const needsBuild = pkgRaw && !await exists3(args[0] ?? "") && command === "node";
+    if (needsBuild) log(ctx, "mcp", `\u26A0 \uC9C4\uC785\uC810 ${args[0]} \uC774 \uC544\uC9C1 \uC5C6\uC2B5\uB2C8\uB2E4. \uBA3C\uC800 [\uC758\uC874\uC131 \uC124\uCE58] \uD6C4 \uBE4C\uB4DC\uAC00 \uD544\uC694\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.`);
+    const envKeys = s?.envKeys ?? [];
+    if (await hasClaudeCli()) {
+      const cliArgs = ["mcp", "add", "-s", "user", name, "--", command, ...args];
+      log(ctx, "mcp", `claude ${cliArgs.join(" ")}`);
+      const r2 = await execa("claude", cliArgs, { reject: false, timeout: 6e4 });
+      if (r2.exitCode !== 0 && !/already exists/i.test(r2.stderr + r2.stdout)) throw new Error("claude mcp add \uC2E4\uD328: " + (r2.stderr || r2.stdout).slice(0, 400));
+    } else {
+      const cfgPath = path12.join(os2.homedir(), ".claude.json");
+      let cfg = {};
+      try {
+        cfg = JSON.parse(await fs7.readFile(cfgPath, "utf8"));
+      } catch {
+      }
+      cfg.mcpServers = cfg.mcpServers ?? {};
+      cfg.mcpServers[name] = { command, args, env: Object.fromEntries(envKeys.map((k2) => [k2, ""])) };
+      await fs7.writeFile(cfgPath, JSON.stringify(cfg, null, 2), "utf8");
+      log(ctx, "mcp", `claude CLI \uAC00 \uC5C6\uC5B4 ${cfgPath} \uC5D0 \uC9C1\uC811 \uB4F1\uB85D`);
+    }
+    const report = `# MCP \uB4F1\uB85D: ${name}
+- \uBA85\uB839: \`${command} ${args.join(" ")}\`
+- \uBC94\uC704: user (\uBAA8\uB4E0 \uD504\uB85C\uC81D\uD2B8)
+${envKeys.length ? `- \uD544\uC694 \uD658\uACBD\uBCC0\uC218: ${envKeys.join(", ")} \u2192 Claude Code \uC758 MCP \uC124\uC815\uC5D0\uC11C \uAC12\uC744 \uCC44\uC6B0\uC138\uC694
+` : ""}${needsBuild ? "- \u26A0 \uBE4C\uB4DC \uD544\uC694: \uC758\uC874\uC131 \uC124\uCE58 \uD6C4 build \uC2A4\uD06C\uB9BD\uD2B8\uB97C \uC2E4\uD589\uD558\uC138\uC694\n" : ""}- \uD655\uC778: \uD130\uBBF8\uB110\uC5D0\uC11C \`claude mcp list\``;
+    ctx.artifacts.mcp_report = report;
+    ctx.emit({ step: "mcp", level: "result", payload: { name, command, args } });
+  }
+};
+
+// packages/core/src/steps/exec.ts
+import { promises as fs8 } from "node:fs";
+import path13 from "node:path";
+async function exists4(p2) {
+  try {
+    await fs8.access(p2);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function needsApproval(ctx) {
+  return ctx.job.options.approve !== "auto" && ctx.approvePolicy === "ask";
+}
+function installCommand(pm, root) {
+  switch (pm) {
+    case "pnpm":
+      return { cmd: "pnpm", args: ["install"] };
+    case "yarn":
+      return { cmd: "yarn", args: ["install"] };
+    case "bun":
+      return { cmd: "bun", args: ["install"] };
+    case "npm":
+      return { cmd: "npm", args: ["install"] };
+    case "uv":
+      return { cmd: "uv", args: ["sync"] };
+    case "poetry":
+      return { cmd: "poetry", args: ["install"] };
+    case "pip":
+      return { cmd: "pip", args: ["install", "-r", "requirements.txt"] };
+    case "cargo":
+      return { cmd: "cargo", args: ["build"] };
+    case "go":
+      return { cmd: "go", args: ["mod", "download"] };
+    default:
+      return null;
+  }
+}
+async function run(ctx, step, cmd, args, cwd, timeoutMs) {
+  log(ctx, step, `$ ${cmd} ${args.join(" ")}`);
+  const r2 = await execa(cmd, args, { cwd, reject: false, timeout: timeoutMs, all: true, windowsHide: true, env: { ...process.env, CI: "1", FORCE_COLOR: "0" }, shell: process.platform === "win32" });
+  const out = (r2.all ?? "").toString();
+  const tail = out.split(/\r?\n/).slice(-60).join("\n");
+  for (const line of tail.split("\n").slice(-12)) if (line.trim()) log(ctx, step, line.slice(0, 300));
+  return { code: r2.exitCode ?? -1, out, timedOut: r2.timedOut };
+}
+var installStep = {
+  name: "install",
+  async run(ctx) {
+    if (needsApproval(ctx)) {
+      ctx.emit({ step: "install", level: "skipped", payload: { reason: "needs_approval" } });
+      return;
+    }
+    const root = analysisRoot(ctx);
+    const pm = ctx.stack?.packageManager;
+    const ic = installCommand(pm, root);
+    if (!ic) {
+      ctx.emit({ step: "install", level: "skipped", payload: { reason: "no_package_manager" } });
+      return;
+    }
+    if (pm === "pip" && !await exists4(path13.join(root, "requirements.txt"))) {
+      ic.args = ["install", "-e", "."];
+    }
+    const r2 = await run(ctx, "install", ic.cmd, ic.args, root, 15 * 6e4);
+    if (r2.code !== 0) throw new Error(`\uC124\uCE58 \uC2E4\uD328 (${ic.cmd} exit ${r2.code}${r2.timedOut ? ", \uD0C0\uC784\uC544\uC6C3" : ""})
+` + r2.out.split(/\r?\n/).slice(-8).join("\n"));
+    if (ctx.stack?.scripts?.build && ["npm", "pnpm", "yarn", "bun"].includes(pm ?? "")) {
+      const b2 = await run(ctx, "install", pm === "npm" ? "npm" : pm, ["run", "build"], root, 10 * 6e4);
+      if (b2.code !== 0) log(ctx, "install", "\u26A0 build \uC2E4\uD328 (\uC124\uCE58\uB294 \uC644\uB8CC)");
+    }
+    ctx.emit({ step: "install", level: "result", payload: { command: `${ic.cmd} ${ic.args.join(" ")}` } });
+  }
+};
+var testStep = {
+  name: "test",
+  async run(ctx) {
+    if (needsApproval(ctx)) {
+      ctx.emit({ step: "test", level: "skipped", payload: { reason: "needs_approval" } });
+      return;
+    }
+    const root = analysisRoot(ctx);
+    const pm = ctx.stack?.packageManager;
+    let cmd = "", args = [];
+    if (ctx.stack?.scripts?.test && ["npm", "pnpm", "yarn", "bun"].includes(pm ?? "")) {
+      cmd = pm === "npm" ? "npm" : pm;
+      args = ["test", "--silent"];
+    } else if (pm === "uv") {
+      cmd = "uv";
+      args = ["run", "pytest", "-q"];
+    } else if (pm === "poetry") {
+      cmd = "poetry";
+      args = ["run", "pytest", "-q"];
+    } else if (pm === "pip") {
+      cmd = "python";
+      args = ["-m", "pytest", "-q"];
+    } else if (pm === "cargo") {
+      cmd = "cargo";
+      args = ["test"];
+    } else if (pm === "go") {
+      cmd = "go";
+      args = ["test", "./..."];
+    }
+    if (!cmd) {
+      ctx.emit({ step: "test", level: "skipped", payload: { reason: "no_test_command" } });
+      return;
+    }
+    const r2 = await run(ctx, "test", cmd, args, root, 15 * 6e4);
+    const ok = r2.code === 0;
+    const rawTail = r2.out.split(/\r?\n/).slice(-80).join("\n");
+    let report = `# \uD14C\uC2A4\uD2B8 \uACB0\uACFC: ${ok ? "\u2705 \uD1B5\uACFC" : "\u274C \uC2E4\uD328"}
+- \uBA85\uB839: \`${cmd} ${args.join(" ")}\`
+- \uC885\uB8CC \uCF54\uB4DC: ${r2.code}${r2.timedOut ? " (\uD0C0\uC784\uC544\uC6C3)" : ""}
+
+\`\`\`
+${rawTail}
+\`\`\``;
+    if (ctx.anthropicApiKey) {
+      try {
+        const summary = await askClaude(`\uC544\uB798\uB294 ${ctx.job.source.owner}/${ctx.job.source.name} \uB808\uD3EC\uC758 \uD14C\uC2A4\uD2B8 \uCD9C\uB825\uC785\uB2C8\uB2E4. \uACB0\uACFC\uB97C \uD55C\uAD6D\uC5B4\uB85C 5\uC904 \uC774\uB0B4\uB85C \uC694\uC57D\uD558\uACE0, \uC2E4\uD328\uAC00 \uC788\uC73C\uBA74 \uC6D0\uC778 \uD6C4\uBCF4\uC640 \uB2E4\uC74C \uC870\uCE58\uB97C \uC801\uC73C\uC138\uC694. \uB9C8\uD06C\uB2E4\uC6B4, \uCF54\uB4DC\uD39C\uC2A4\uB85C \uC804\uCCB4\uB97C \uAC10\uC2F8\uC9C0 \uB9C8\uC138\uC694.
+
+\uBA85\uB839: ${cmd} ${args.join(" ")}
+\uC885\uB8CC \uCF54\uB4DC: ${r2.code}
+
+${rawTail.slice(0, 12e3)}`, { apiKey: ctx.anthropicApiKey, maxTokens: 800 });
+        report = `# \uD14C\uC2A4\uD2B8 \uACB0\uACFC: ${ok ? "\u2705 \uD1B5\uACFC" : "\u274C \uC2E4\uD328"}
+
+${summary}
+
+---
+- \uBA85\uB839: \`${cmd} ${args.join(" ")}\` \xB7 \uC885\uB8CC \uCF54\uB4DC ${r2.code}
+
+\`\`\`
+${rawTail}
+\`\`\``;
+      } catch (e) {
+        log(ctx, "test", "AI \uC694\uC57D \uC2E4\uD328: " + e.message);
+      }
+    }
+    ctx.artifacts.test_report = report;
+    ctx.emit({ step: "test", level: "result", payload: { ok, code: r2.code } });
+  }
+};
+
 // packages/core/src/engine.ts
 var REGISTRY = {
   clone: cloneStep,
@@ -26671,8 +27149,14 @@ var REGISTRY = {
   open: openStep,
   remove: removeStep,
   pick_folder: pickFolderStep,
-  list_dirs: listDirsStep
-  // docs / install / test / dev / skill / mcp / claude_md / obsidian / archive → 다음 단계에서 추가
+  list_dirs: listDirsStep,
+  docs: docsStep,
+  skill: skillStep,
+  claude_md: claudeMdStep,
+  mcp: mcpStep,
+  install: installStep,
+  test: testStep
+  // dev / obsidian / archive → 이후 단계
 };
 async function runJob(job, opts) {
   const ctx = {
@@ -26680,6 +27164,7 @@ async function runJob(job, opts) {
     workspacePath: opts.workspacePath,
     artifacts: {},
     anthropicApiKey: opts.anthropicApiKey,
+    approvePolicy: opts.approvePolicy ?? "ask",
     emit: (e) => opts.onEvent({ ...e, jobId: job.id, ts: (/* @__PURE__ */ new Date()).toISOString() })
   };
   if (!job.steps.includes("clone") && job.options.targetDir) ctx.localPath = job.options.targetDir;
@@ -26723,6 +27208,7 @@ function printEvent(e) {
 async function executeJob(job, cfg, hub) {
   console.log(import_picocolors.default.cyan(`\u25B6 ${job.pipeline}: ${job.source.url}`));
   const buffer = [];
+  const skipped = [];
   let flushTimer = null;
   const flush = async () => {
     if (!hub || buffer.length === 0) return;
@@ -26737,9 +27223,11 @@ async function executeJob(job, cfg, hub) {
     const ctx = await runJob(job, {
       workspacePath: cfg.workspacePath,
       anthropicApiKey: cfg.anthropicApiKey,
+      approvePolicy: cfg.approve ?? "ask",
       onEvent: (e) => {
         printEvent(e);
         buffer.push(e);
+        if (e.level === "skipped") skipped.push({ step: e.step, reason: String(e.payload.reason ?? "") });
         if (!flushTimer) flushTimer = setTimeout(() => {
           flushTimer = null;
           void flush();
@@ -26755,7 +27243,8 @@ async function executeJob(job, cfg, hub) {
     await hub?.complete(job.id, {
       status: "done",
       repo: !isLocalCmd && ctx.localPath ? { localPath: ctx.localPath, stack: ctx.stack ?? null, license: ctx.license ?? null, ref: job.source.ref ?? null } : void 0,
-      artifacts: isLocalCmd ? void 0 : ctx.artifacts
+      artifacts: isLocalCmd ? void 0 : ctx.artifacts,
+      skipped
     });
     console.log(import_picocolors.default.green("\u2714 \uC644\uB8CC"));
   } catch (err) {
@@ -26768,39 +27257,39 @@ async function executeJob(job, cfg, hub) {
 }
 
 // apps/agent/src/autostart.ts
-import { promises as fs5 } from "node:fs";
-import os2 from "node:os";
-import path10 from "node:path";
+import { promises as fs9 } from "node:fs";
+import os3 from "node:os";
+import path14 from "node:path";
 async function registerAutostart(cliPath) {
   if (process.platform !== "win32") return null;
-  const startup = path10.join(os2.homedir(), "AppData", "Roaming", "Microsoft", "Windows", "Start Menu", "Programs", "Startup");
-  await fs5.mkdir(startup, { recursive: true });
-  const logPath = path10.join(path10.dirname(cliPath), "agent.log");
+  const startup = path14.join(os3.homedir(), "AppData", "Roaming", "Microsoft", "Windows", "Start Menu", "Programs", "Startup");
+  await fs9.mkdir(startup, { recursive: true });
+  const logPath = path14.join(path14.dirname(cliPath), "agent.log");
   const vbs = [
     'Set sh = CreateObject("WScript.Shell")',
     `sh.Run "cmd /c ""title everygithub agent && node """"${cliPath}"""" start > """"${logPath}"""" 2>&1""", 0, False`,
     ""
   ].join("\r\n");
-  const target = path10.join(startup, "everygithub.vbs");
-  await fs5.writeFile(target, vbs, "utf8");
+  const target = path14.join(startup, "everygithub.vbs");
+  await fs9.writeFile(target, vbs, "utf8");
   return target;
 }
 async function removeAutostart() {
   if (process.platform !== "win32") return;
-  const target = path10.join(os2.homedir(), "AppData", "Roaming", "Microsoft", "Windows", "Start Menu", "Programs", "Startup", "everygithub.vbs");
-  await fs5.rm(target, { force: true });
+  const target = path14.join(os3.homedir(), "AppData", "Roaming", "Microsoft", "Windows", "Start Menu", "Programs", "Startup", "everygithub.vbs");
+  await fs9.rm(target, { force: true });
 }
 
 // apps/agent/src/self-update.ts
 var import_picocolors2 = __toESM(require_picocolors(), 1);
 import { createHash } from "node:crypto";
-import { promises as fs6 } from "node:fs";
+import { promises as fs10 } from "node:fs";
 import { spawn as spawn3 } from "node:child_process";
 async function selfUpdate(hubUrl, selfPath) {
   try {
     const remote = (await (await fetch(`${hubUrl}/agent/cli.mjs.sha256`, { cache: "no-store" })).text()).trim().slice(0, 64);
     if (!/^[0-9a-f]{64}$/.test(remote)) return false;
-    const local = createHash("sha256").update(await fs6.readFile(selfPath)).digest("hex");
+    const local = createHash("sha256").update(await fs10.readFile(selfPath)).digest("hex");
     if (local === remote) return false;
     console.log(import_picocolors2.default.cyan("\uC0C8 \uBC84\uC804 \uBC1C\uACAC \u2192 \uC5C5\uB370\uC774\uD2B8 \uC911"));
     const body = Buffer.from(await (await fetch(`${hubUrl}/agent/cli.mjs`, { cache: "no-store" })).arrayBuffer());
@@ -26809,8 +27298,8 @@ async function selfUpdate(hubUrl, selfPath) {
       return false;
     }
     const tmp = selfPath + ".new";
-    await fs6.writeFile(tmp, body);
-    await fs6.rename(tmp, selfPath);
+    await fs10.writeFile(tmp, body);
+    await fs10.rename(tmp, selfPath);
     const child = process.platform === "win32" ? spawn3("cmd", ["/c", "start", "everygithub agent", "/min", "cmd", "/c", `title everygithub agent && "${process.execPath}" "${selfPath}" start`], { detached: true, stdio: "ignore", windowsHide: true }) : spawn3(process.execPath, [selfPath, "start"], { detached: true, stdio: "ignore" });
     child.unref();
     console.log(import_picocolors2.default.green("\u2714 \uC5C5\uB370\uC774\uD2B8 \uC644\uB8CC \u2014 \uC7AC\uC2DC\uC791"));
@@ -26825,8 +27314,8 @@ async function selfUpdate(hubUrl, selfPath) {
 async function eventLog(line) {
   try {
     const { EVENTS_PATH: EVENTS_PATH2 } = await Promise.resolve().then(() => (init_config(), config_exports));
-    await fs7.mkdir(CONFIG_DIR, { recursive: true });
-    await fs7.appendFile(EVENTS_PATH2, `[${(/* @__PURE__ */ new Date()).toISOString()}] pid=${process.pid} v${AGENT_VERSION} ${line}
+    await fs11.mkdir(CONFIG_DIR, { recursive: true });
+    await fs11.appendFile(EVENTS_PATH2, `[${(/* @__PURE__ */ new Date()).toISOString()}] pid=${process.pid} v${AGENT_VERSION} ${line}
 `);
   } catch {
   }
@@ -26866,7 +27355,7 @@ function localJob(url, pipeline, deviceId) {
 program2.command("connect <token>").description("\uC0AC\uC774\uD2B8 \uC124\uCE58 \uD30C\uC77C\uC774 \uD638\uCD9C\uD558\uB294 \uC790\uB3D9 \uC5F0\uACB0").requiredOption("--hub <url>", "\uD5C8\uBE0C \uC8FC\uC18C").action(async (token, opts) => {
   const hubUrl = opts.hub.replace(/\/$/, "");
   const hub = new HubClient(hubUrl);
-  const res = await hub.pair({ code: token.trim(), name: os3.hostname(), os: currentOS(), agentVersion: AGENT_VERSION });
+  const res = await hub.pair({ code: token.trim(), name: os4.hostname(), os: currentOS(), agentVersion: AGENT_VERSION });
   await saveConfig({ hubUrl, deviceId: res.deviceId, deviceToken: res.deviceToken });
   const auto = await registerAutostart(process.argv[1]);
   console.log(import_picocolors3.default.green("\u2714 \uC0AC\uC774\uD2B8\uC640 \uC5F0\uACB0\uB428"), import_picocolors3.default.dim(`(${CONFIG_PATH})`));
@@ -26874,14 +27363,14 @@ program2.command("connect <token>").description("\uC0AC\uC774\uD2B8 \uC124\uCE58
 });
 program2.command("disconnect").description("\uC5F0\uACB0 \uD574\uC81C + \uC790\uB3D9\uC2DC\uC791 \uC81C\uAC70").action(async () => {
   await removeAutostart();
-  await fs7.rm(CONFIG_PATH, { force: true });
+  await fs11.rm(CONFIG_PATH, { force: true });
   console.log("\uC5F0\uACB0 \uD574\uC81C\uB428");
 });
-program2.command("add <url>").description("\uD5C8\uBE0C \uC5C6\uC774 \uB85C\uCEEC\uC5D0\uC11C \uBC14\uB85C \uCC98\uB9AC").option("-p, --pipeline <name>", "quick | docs | full | skill", "quick").option("-d, --dir <path>", "\uD074\uB860 \uD3F4\uB354 (\uAE30\uBCF8: \uB0B4 \uBB38\uC11C\\everygithub)").action(async (url, opts) => {
+program2.command("add <url>").description("\uD5C8\uBE0C \uC5C6\uC774 \uB85C\uCEEC\uC5D0\uC11C \uBC14\uB85C \uCC98\uB9AC").option("-p, --pipeline <name>", "quick | docs | full | skill", "quick").option("-d, --dir <path>", "\uD074\uB860 \uD3F4\uB354 (\uAE30\uBCF8: \uB0B4 \uBB38\uC11C\\everygithub)").option("-y, --yes", "\uC124\uCE58\xB7\uD14C\uC2A4\uD2B8 \uC2E4\uD589\uC744 \uD655\uC778 \uC5C6\uC774 \uD5C8\uC6A9").action(async (url, opts) => {
   const cfg = await loadConfig() ?? {};
   const workspacePath = resolveWorkspace(opts.dir ?? cfg.localWorkspace);
-  await fs7.mkdir(workspacePath, { recursive: true });
-  await executeJob(localJob(url, Pipeline.parse(opts.pipeline), cfg.deviceId ?? randomUUID()), { workspacePath, anthropicApiKey: process.env.ANTHROPIC_API_KEY });
+  await fs11.mkdir(workspacePath, { recursive: true });
+  await executeJob(localJob(url, Pipeline.parse(opts.pipeline), cfg.deviceId ?? randomUUID()), { workspacePath, anthropicApiKey: process.env.ANTHROPIC_API_KEY, approve: opts.yes ? "auto" : "ask" });
 });
 program2.command("config").description("\uD604\uC7AC \uC0C1\uD0DC").action(async () => {
   const cfg = await loadConfig();
@@ -26896,11 +27385,11 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
     return;
   }
   try {
-    process.chdir(os3.homedir());
+    process.chdir(os4.homedir());
   } catch {
   }
   try {
-    const old = Number((await fs7.readFile(PID_PATH, "utf8")).trim());
+    const old = Number((await fs11.readFile(PID_PATH, "utf8")).trim());
     if (old && old !== process.pid) {
       try {
         process.kill(old);
@@ -26909,8 +27398,8 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
     }
   } catch {
   }
-  await fs7.mkdir(CONFIG_DIR, { recursive: true });
-  await fs7.writeFile(PID_PATH, String(process.pid));
+  await fs11.mkdir(CONFIG_DIR, { recursive: true });
+  await fs11.writeFile(PID_PATH, String(process.pid));
   await eventLog("pid written, checking update");
   const selfPath = process.argv[1];
   if (await selfUpdate(cfg.hubUrl, selfPath)) return;
@@ -26923,7 +27412,7 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
     try {
       const s = await hub.settings();
       settings = { ...s, workspacePath: resolveWorkspace(s.workspacePath) };
-      await fs7.mkdir(settings.workspacePath, { recursive: true });
+      await fs11.mkdir(settings.workspacePath, { recursive: true });
       if (s.workspacePath !== settings.workspacePath) await hub.updateDevice({ workspacePath: settings.workspacePath }).catch(() => {
       });
     } catch (err) {

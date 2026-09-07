@@ -5,9 +5,9 @@ import { ChevronDown, Activity as ActIcon, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/toast";
 import clsx from "clsx";
-import { StatusBadge, PipelineLabel, timeAgo, EmptyState } from "@/components/ui";
+import { StatusBadge, PipelineLabel, timeAgo, EmptyState, JobNotes } from "@/components/ui";
 
-type Job = { id: string; source: any; pipeline: string; steps: string[]; status: string; origin: any; created_at: string; finished_at: string | null; repo_id: string | null };
+type Job = { id: string; source: any; pipeline: string; steps: string[]; status: string; origin: any; created_at: string; finished_at: string | null; repo_id: string | null; error?: string | null; skipped?: { step: string; reason: string }[] };
 type Ev = { id: number; step: string; level: string; payload: any; ts: string };
 
 export function ActivityList({ jobs }: { jobs: Job[] }) {
@@ -42,6 +42,7 @@ export function ActivityList({ jobs }: { jobs: Job[] }) {
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium truncate">{j.source.owner}/{j.source.name}{j.source.path ? ` · ${j.source.path}` : ""}</div>
               <div className="text-xs text-mute"><PipelineLabel p={j.pipeline} /> · {j.origin.channel} · {timeAgo(j.created_at)}{j.finished_at ? ` · ${Math.round((new Date(j.finished_at).getTime() - new Date(j.created_at).getTime()) / 1000)}초` : ""}</div>
+              <JobNotes error={j.error} skipped={j.skipped} />
             </div>
             <StatusBadge status={j.status} />
             {j.status === "queued" && <span onClick={(e) => { e.stopPropagation(); cancel(j.id); }} className="text-mute hover:text-bad" title="취소"><XCircle size={15} /></span>}

@@ -4,13 +4,13 @@ import { ArrowLeft, ExternalLink, Folder } from "lucide-react";
 import { marked } from "marked";
 import { supabaseServer } from "@/lib/supabase";
 import { isOnline } from "@/lib/data";
-import { Badge, LangDot, timeAgo } from "@/components/ui";
+import { Badge, LangDot, timeAgo, JobNotes } from "@/components/ui";
 import { RepoActions, Tabs, CopyPath, HeaderActions } from "./detail";
 
 export const dynamic = "force-dynamic";
 
-const KIND_LABEL: Record<string, string> = { summary: "요약", docs_ko: "설명서", tree: "구조", env_example: ".env", skill_md: "SKILL.md", claude_md: "CLAUDE.md", test_report: "테스트" };
-const ORDER = ["docs_ko", "summary", "skill_md", "claude_md", "test_report", "env_example", "tree"];
+const KIND_LABEL: Record<string, string> = { summary: "요약", docs_ko: "설명서", tree: "구조", env_example: ".env", skill_md: "SKILL.md", claude_md: "CLAUDE.md", test_report: "테스트", mcp_report: "MCP 등록" };
+const ORDER = ["docs_ko", "summary", "test_report", "mcp_report", "skill_md", "claude_md", "env_example", "tree"];
 
 /** 레포 상세: 좌 콘텐츠 탭 / 우 액션 패널 */
 export default async function RepoPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,13 +20,13 @@ export default async function RepoPage({ params }: { params: Promise<{ id: strin
   if (!repo) notFound();
   const [{ data: artifacts }, { data: jobs }] = await Promise.all([
     sb.from("artifacts").select("id,kind,content,share_token,created_at").eq("repo_id", id).order("created_at", { ascending: false }),
-    sb.from("jobs").select("id,pipeline,status,created_at").eq("repo_id", id).order("created_at", { ascending: false }).limit(5),
+    sb.from("jobs").select("id,pipeline,status,created_at,error,skipped").eq("repo_id", id).order("created_at", { ascending: false }).limit(5),
   ]);
   const latest = new Map<string, any>();
   for (const a of artifacts ?? []) if (!latest.has(a.kind)) latest.set(a.kind, a);
   const tabs = ORDER.filter((k) => latest.has(k)).map((k) => {
     const a = latest.get(k);
-    const isMd = k === "docs_ko" || k === "summary" || k === "skill_md" || k === "claude_md" || k === "test_report";
+    const isMd = k !== "tree" && k !== "env_example";
     return { key: k, label: KIND_LABEL[k] ?? k, html: isMd ? String(marked.parse(a.content)) : null, raw: isMd ? null : a.content, artifactId: a.id, shareToken: a.share_token as string | null, createdAt: a.created_at };
   });
   const s = repo.stack ?? {};
@@ -68,7 +68,10 @@ export default async function RepoPage({ params }: { params: Promise<{ id: strin
           <div className="card p-4">
             <div className="text-xs font-semibold text-fg-2 uppercase tracking-wide mb-2">최근 작업</div>
             {jobs?.length ? jobs.map((j) => (
-              <div key={j.id} className="flex items-center justify-between text-xs py-1.5 border-b border-line last:border-0"><span className="text-fg-2">{j.pipeline}</span><span className="text-mute">{j.status} · {timeAgo(j.created_at)}</span></div>
+              <div key={j.id} className="text-xs py-1.5 border-b border-line last:border-0">
+                <div className="flex items-center justify-between"><span className="text-fg-2">{j.pipeline}</span><span className="text-mute">{j.status} · {timeAgo(j.created_at)}</span></div>
+                <JobNotes error={j.error} skipped={j.skipped} />
+              </div>
             )) : <div className="text-xs text-mute">없음</div>}
           </div>
           {s.envKeys?.length > 0 && (

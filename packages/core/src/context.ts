@@ -14,6 +14,8 @@ export interface RunContext {
   artifacts: Record<string, string>;
   /** AI 키. 없으면 AI 스텝은 건너뜀 */
   anthropicApiKey?: string;
+  /** 설치·테스트 등 코드 실행 스텝 정책 (사이트 설정) */
+  approvePolicy: "auto" | "ask";
   emit: (e: Omit<JobEvent, "jobId" | "ts">) => void;
 }
 

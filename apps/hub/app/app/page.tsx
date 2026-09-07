@@ -16,7 +16,7 @@ export default async function Home() {
   const s = await meStatus(user.id);
   const sb = await supabaseServer();
   const [{ data: jobs }, { data: repos }, { count: repoCount }] = await Promise.all([
-    sb.from("jobs").select("id,source,pipeline,steps,status,origin,created_at,finished_at,repo_id").order("created_at", { ascending: false }).limit(24),
+    sb.from("jobs").select("id,source,pipeline,steps,status,origin,created_at,finished_at,repo_id,error,skipped").order("created_at", { ascending: false }).limit(24),
     sb.from("repos").select("id,owner,name,stack,license,updated_at").order("updated_at", { ascending: false }).limit(6),
     sb.from("repos").select("id", { count: "exact", head: true }),
   ]);

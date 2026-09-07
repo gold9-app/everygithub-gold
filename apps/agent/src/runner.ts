@@ -3,7 +3,7 @@ import { runJob } from "@everygithub/core";
 import type { Job, JobEvent } from "@everygithub/protocol";
 import type { HubClient } from "./hub-client";
 
-export interface RunSettings { workspacePath: string; anthropicApiKey?: string }
+export interface RunSettings { workspacePath: string; anthropicApiKey?: string; approve?: "auto" | "ask" }
 
 function printEvent(e: JobEvent) {
   const tag = pc.dim(`[${e.step}]`);
@@ -20,6 +20,7 @@ function printEvent(e: JobEvent) {
 export async function executeJob(job: Job, cfg: RunSettings, hub?: HubClient) {
   console.log(pc.cyan(`▶ ${job.pipeline}: ${job.source.url}`));
   const buffer: JobEvent[] = [];
+  const skipped: { step: string; reason: string }[] = [];
   let flushTimer: NodeJS.Timeout | null = null;
   const flush = async () => {
     if (!hub || buffer.length === 0) return;
@@ -31,9 +32,11 @@ export async function executeJob(job: Job, cfg: RunSettings, hub?: HubClient) {
     const ctx = await runJob(job, {
       workspacePath: cfg.workspacePath,
       anthropicApiKey: cfg.anthropicApiKey,
+      approvePolicy: cfg.approve ?? "ask",
       onEvent: (e) => {
         printEvent(e);
         buffer.push(e);
+        if (e.level === "skipped") skipped.push({ step: e.step, reason: String((e.payload as any).reason ?? "") });
         if (!flushTimer) flushTimer = setTimeout(() => { flushTimer = null; void flush(); }, 500);
       },
     });
@@ -47,6 +50,7 @@ export async function executeJob(job: Job, cfg: RunSettings, hub?: HubClient) {
       status: "done",
       repo: !isLocalCmd && ctx.localPath ? { localPath: ctx.localPath, stack: ctx.stack ?? null, license: ctx.license ?? null, ref: job.source.ref ?? null } : undefined,
       artifacts: isLocalCmd ? undefined : ctx.artifacts,
+      skipped,
     });
     console.log(pc.green("✔ 완료"));
   } catch (err) {

@@ -60,3 +60,25 @@ export function LangDot({ lang }: { lang?: string }) {
   if (!lang) return null;
   return <span className="inline-flex items-center gap-1.5 text-xs text-fg-2"><span className="w-2 h-2 rounded-full" style={{ background: LANG_COLOR[lang] ?? "#8b93a1" }} />{lang}</span>;
 }
+
+const SKIP_REASON: Record<string, string> = {
+  no_api_key: "AI 키 없음 — 설정 → AI 에서 키를 넣으세요",
+  needs_approval: "확인 필요 — 설정 → AI·실행에서 자동 실행을 켜거나 레포 페이지 버튼으로 직접 실행",
+  not_implemented: "아직 지원되지 않는 단계",
+  no_package_manager: "패키지 매니저를 찾지 못함",
+  no_test_command: "테스트 명령 없음",
+  cancelled: "취소됨",
+};
+const STEP_KO: Record<string, string> = { docs: "설명서", claude_md: "CLAUDE.md", install: "설치", test: "테스트", skill: "스킬", mcp: "MCP", clone: "클론", analyze: "분석" };
+
+/** 잡의 실패 사유·건너뛴 스텝을 한 줄씩 */
+export function JobNotes({ error, skipped }: { error?: string | null; skipped?: { step: string; reason: string }[] | null }) {
+  const sk = (skipped ?? []).filter((s) => s.reason !== "cancelled");
+  if (!error && !sk.length) return null;
+  return (
+    <div className="mt-1 space-y-0.5">
+      {error && <div className="text-[11px] text-bad leading-4">✖ {error.split("\n")[0].slice(0, 200)}</div>}
+      {sk.map((s, i) => <div key={i} className="text-[11px] text-warn leading-4">↷ {STEP_KO[s.step] ?? s.step} 건너뜀: {SKIP_REASON[s.reason] ?? s.reason}</div>)}
+    </div>
+  );
+}

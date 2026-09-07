@@ -37,7 +37,7 @@ export const RepoRecord = z.object({
 });
 export type RepoRecord = z.infer<typeof RepoRecord>;
 
-export const ArtifactKind = z.enum(["summary", "docs_ko", "tree", "env_example", "skill_md", "claude_md", "test_report"]);
+export const ArtifactKind = z.enum(["summary", "docs_ko", "tree", "env_example", "skill_md", "claude_md", "test_report", "mcp_report"]);
 export type ArtifactKind = z.infer<typeof ArtifactKind>;
 
 export const Artifact = z.object({

@@ -58,11 +58,12 @@ program.command("disconnect").description("연결 해제 + 자동시작 제거")
 program.command("add <url>").description("허브 없이 로컬에서 바로 처리")
   .option("-p, --pipeline <name>", "quick | docs | full | skill", "quick")
   .option("-d, --dir <path>", "클론 폴더 (기본: 내 문서\\everygithub)")
-  .action(async (url: string, opts: { pipeline: string; dir?: string }) => {
+  .option("-y, --yes", "설치·테스트 실행을 확인 없이 허용")
+  .action(async (url: string, opts: { pipeline: string; dir?: string; yes?: boolean }) => {
     const cfg = (await loadConfig()) ?? {};
     const workspacePath = resolveWorkspace(opts.dir ?? cfg.localWorkspace);
     await fs.mkdir(workspacePath, { recursive: true });
-    await executeJob(localJob(url, Pipeline.parse(opts.pipeline), cfg.deviceId ?? randomUUID()), { workspacePath, anthropicApiKey: process.env.ANTHROPIC_API_KEY });
+    await executeJob(localJob(url, Pipeline.parse(opts.pipeline), cfg.deviceId ?? randomUUID()), { workspacePath, anthropicApiKey: process.env.ANTHROPIC_API_KEY, approve: opts.yes ? "auto" : "ask" });
   });
 
 program.command("config").description("현재 상태").action(async () => {

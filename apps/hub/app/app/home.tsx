@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Link2, Zap, FileText, TerminalSquare, Sparkles, Send, Globe, MonitorSmartphone, Check, X, Loader2 } from "lucide-react";
 import clsx from "clsx";
-import { StatusBadge, PipelineLabel, timeAgo, EmptyState } from "@/components/ui";
+import { StatusBadge, PipelineLabel, timeAgo, EmptyState, JobNotes } from "@/components/ui";
 import { toast } from "@/components/toast";
 
 const PIPELINES = [
@@ -69,7 +69,7 @@ export function CommandBar({ devices, hasAnyDevice }: { devices: { id: string; n
   );
 }
 
-type JobRow = { id: string; source: any; pipeline: string; status: string; origin: any; created_at: string; finished_at: string | null; repo_id: string | null };
+type JobRow = { id: string; source: any; pipeline: string; status: string; origin: any; created_at: string; finished_at: string | null; repo_id: string | null; error?: string | null; skipped?: { step: string; reason: string }[] };
 
 /** 실시간 피드: 진행 중인 잡이 있으면 2초, 아니면 8초 간격 갱신 */
 export function LiveFeed({ initial }: { initial: JobRow[] }) {
@@ -105,6 +105,7 @@ export function LiveFeed({ initial }: { initial: JobRow[] }) {
                 {j.origin.channel === "telegram" ? <Send size={11} /> : j.origin.channel === "web" ? <Globe size={11} /> : <MonitorSmartphone size={11} />}
                 <span>{timeAgo(j.created_at)}</span>
               </div>
+              <JobNotes error={j.error} skipped={j.skipped} />
             </div>
             <StatusBadge status={j.status} />
           </div>

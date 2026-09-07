@@ -4,3 +4,7 @@ export * from "./steps/clone";
 export * from "./steps/analyze";
 export * from "./steps/summary";
 export * from "./steps/local";
+export * from "./ai";
+export * from "./steps/docs";
+export * from "./steps/claude";
+export * from "./steps/exec";

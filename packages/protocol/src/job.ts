@@ -17,8 +17,8 @@ export type Pipeline = z.infer<typeof Pipeline>;
 
 export const PIPELINE_STEPS: Record<Pipeline, StepName[]> = {
   quick: ["clone", "analyze", "summary"],
-  docs: ["clone", "analyze", "summary", "docs", "archive"],
-  full: ["clone", "analyze", "summary", "docs", "install", "test", "archive"],
+  docs: ["clone", "analyze", "summary", "docs", "claude_md"],
+  full: ["clone", "analyze", "summary", "docs", "claude_md", "install", "test"],
   skill: ["clone", "analyze", "summary", "skill"],
   custom: [],
 };

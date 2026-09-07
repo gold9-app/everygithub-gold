@@ -4,6 +4,9 @@ import { cloneStep } from "./steps/clone";
 import { analyzeStep } from "./steps/analyze";
 import { summaryStep } from "./steps/summary";
 import { openStep, removeStep, pickFolderStep, listDirsStep } from "./steps/local";
+import { docsStep } from "./steps/docs";
+import { skillStep, claudeMdStep, mcpStep } from "./steps/claude";
+import { installStep, testStep } from "./steps/exec";
 
 const REGISTRY: Partial<Record<StepName, Step>> = {
   clone: cloneStep,
@@ -13,12 +16,19 @@ const REGISTRY: Partial<Record<StepName, Step>> = {
   remove: removeStep,
   pick_folder: pickFolderStep,
   list_dirs: listDirsStep,
-  // docs / install / test / dev / skill / mcp / claude_md / obsidian / archive → 다음 단계에서 추가
+  docs: docsStep,
+  skill: skillStep,
+  claude_md: claudeMdStep,
+  mcp: mcpStep,
+  install: installStep,
+  test: testStep,
+  // dev / obsidian / archive → 이후 단계
 };
 
 export interface EngineOptions {
   workspacePath: string;
   anthropicApiKey?: string;
+  approvePolicy?: "auto" | "ask";
   onEvent: (e: JobEvent) => void;
 }
 
@@ -29,6 +39,7 @@ export async function runJob(job: Job, opts: EngineOptions): Promise<RunContext>
     workspacePath: opts.workspacePath,
     artifacts: {},
     anthropicApiKey: opts.anthropicApiKey,
+    approvePolicy: opts.approvePolicy ?? "ask",
     emit: (e) => opts.onEvent({ ...e, jobId: job.id, ts: new Date().toISOString() }),
   };
 

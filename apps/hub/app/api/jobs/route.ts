@@ -30,6 +30,6 @@ export async function GET(req: Request) {
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   const limit = Number(new URL(req.url).searchParams.get("limit") ?? 12);
   const sb = await supabaseServer();
-  const { data } = await sb.from("jobs").select("id,source,pipeline,steps,status,origin,created_at,finished_at,repo_id").order("created_at", { ascending: false }).limit(limit + 10);
+  const { data } = await sb.from("jobs").select("id,source,pipeline,steps,status,origin,created_at,finished_at,repo_id,error,skipped").order("created_at", { ascending: false }).limit(limit + 10);
   return NextResponse.json({ jobs: (data ?? []).filter((j) => !isLocalJob(j)).slice(0, limit) });
 }

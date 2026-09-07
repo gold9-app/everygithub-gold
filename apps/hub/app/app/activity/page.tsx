@@ -8,7 +8,7 @@ const isLocalJob = (j: any) => Array.isArray(j.steps) && j.steps.length > 0 && j
 
 export default async function ActivityPage() {
   const sb = await supabaseServer();
-  const { data } = await sb.from("jobs").select("id,source,pipeline,steps,status,origin,created_at,finished_at,repo_id").order("created_at", { ascending: false }).limit(100);
+  const { data } = await sb.from("jobs").select("id,source,pipeline,steps,status,origin,created_at,finished_at,repo_id,error,skipped").order("created_at", { ascending: false }).limit(100);
   return (
     <div>
       <h1 className="text-2xl font-bold tracking-tight mb-1">활동</h1>
