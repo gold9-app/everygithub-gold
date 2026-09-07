@@ -38,7 +38,7 @@ export async function executeJob(job: Job, cfg: RunSettings, hub?: HubClient) {
       },
     });
     await flush();
-    const isLocalCmd = job.steps.every((s) => s === "open" || s === "remove" || s === "pick_folder");
+    const isLocalCmd = job.steps.every((s) => s === "open" || s === "remove" || s === "pick_folder" || s === "list_dirs");
     if (ctx.artifacts.picked_path && hub) {
       await hub.updateDevice({ workspacePath: ctx.artifacts.picked_path });
       console.log(pc.green("✔ 클론 폴더 변경:"), ctx.artifacts.picked_path);

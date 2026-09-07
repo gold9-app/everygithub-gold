@@ -2,7 +2,7 @@ import { supabaseServer } from "@/lib/supabase";
 import { ActivityList } from "./activity";
 
 export const dynamic = "force-dynamic";
-const LOCAL = new Set(["open", "remove", "pick_folder"]);
+const LOCAL = new Set(["open", "remove", "pick_folder", "list_dirs"]);
 const isLocalJob = (j: any) => Array.isArray(j.steps) && j.steps.length > 0 && j.steps.every((s: string) => LOCAL.has(s));
 
 

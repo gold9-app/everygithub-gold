@@ -5,7 +5,7 @@ import { currentUser, supabaseServer } from "@/lib/supabase";
 import { createJob } from "@/lib/jobs";
 
 export const dynamic = "force-dynamic";
-const LOCAL = new Set(["open", "remove", "pick_folder"]);
+const LOCAL = new Set(["open", "remove", "pick_folder", "list_dirs"]);
 const isLocalJob = (j: any) => Array.isArray(j.steps) && j.steps.length > 0 && j.steps.every((s: string) => LOCAL.has(s));
 
 const Body = z.object({ url: z.string(), pipeline: Pipeline.default("quick"), deviceId: z.string().uuid().optional() });

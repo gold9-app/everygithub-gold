@@ -15,6 +15,6 @@ export async function GET(req: Request) {
     workspacePath: device.workspace_path,
     anthropicApiKey: s.anthropicApiKey || undefined,
     approve: s.approve ?? "ask",
-    pollIntervalMs: 3000,
+    pollIntervalMs: 1500,
   });
 }

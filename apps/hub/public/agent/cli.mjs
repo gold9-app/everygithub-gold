@@ -14216,7 +14216,8 @@ var StepName = external_exports.enum([
   "archive",
   "open",
   "remove",
-  "pick_folder"
+  "pick_folder",
+  "list_dirs"
   // 로컬 명령: 탐색기로 폴더 열기 / 로컬 폴더 삭제 (clone 불필요, options.targetDir 사용)
 ]);
 var AI_STEPS = ["docs", "claude_md"];
@@ -26583,6 +26584,49 @@ var pickFolderStep = {
     ctx.emit({ step: "pick_folder", level: "result", payload: { picked } });
   }
 };
+var listDirsStep = {
+  name: "list_dirs",
+  async run(ctx) {
+    const os4 = await import("node:os");
+    const target = (ctx.job.options.targetDir ?? "").trim();
+    const home = os4.homedir();
+    const shortcuts = [];
+    for (const [name, rel] of [["\uBC14\uD0D5\uD654\uBA74", "Desktop"], ["\uBB38\uC11C", "Documents"], ["\uB2E4\uC6B4\uB85C\uB4DC", "Downloads"]]) {
+      const p2 = path9.join(home, rel);
+      try {
+        if ((await fs4.stat(p2)).isDirectory()) shortcuts.push({ name, path: p2 });
+      } catch {
+      }
+    }
+    shortcuts.push({ name: "\uD648", path: home });
+    const roots = [];
+    if (process.platform === "win32") {
+      for (const L2 of "CDEFGHIJKLMNOPQRSTUVWXYZ") {
+        const p2 = `${L2}:\\`;
+        try {
+          await fs4.access(p2);
+          roots.push({ name: `${L2}: \uB4DC\uB77C\uC774\uBE0C`, path: p2 });
+        } catch {
+        }
+      }
+    } else roots.push({ name: "/", path: "/" });
+    if (!target) {
+      ctx.emit({ step: "list_dirs", level: "result", payload: { path: "", parent: null, entries: [], roots, shortcuts, current: ctx.workspacePath } });
+      return;
+    }
+    const dir = path9.resolve(target);
+    let names = [];
+    try {
+      const ents = await fs4.readdir(dir, { withFileTypes: true });
+      names = ents.filter((e) => e.isDirectory() && !e.name.startsWith(".") && !e.name.startsWith("$") && !["node_modules", "System Volume Information", "Windows", "Program Files", "Program Files (x86)", "ProgramData", "AppData"].includes(e.name)).map((e) => ({ name: e.name, path: path9.join(dir, e.name) })).sort((a2, b2) => a2.name.localeCompare(b2.name, "ko"));
+    } catch (err) {
+      ctx.emit({ step: "list_dirs", level: "error", payload: { message: `\uD3F4\uB354\uB97C \uC77D\uC744 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4: ${dir}` } });
+      return;
+    }
+    const parent = path9.dirname(dir) === dir ? null : path9.dirname(dir);
+    ctx.emit({ step: "list_dirs", level: "result", payload: { path: dir, parent, entries: names.slice(0, 500), roots, shortcuts, current: ctx.workspacePath } });
+  }
+};
 
 // packages/core/src/engine.ts
 var REGISTRY = {
@@ -26591,7 +26635,8 @@ var REGISTRY = {
   summary: summaryStep,
   open: openStep,
   remove: removeStep,
-  pick_folder: pickFolderStep
+  pick_folder: pickFolderStep,
+  list_dirs: listDirsStep
   // docs / install / test / dev / skill / mcp / claude_md / obsidian / archive → 다음 단계에서 추가
 };
 async function runJob(job, opts) {
@@ -26667,7 +26712,7 @@ async function executeJob(job, cfg, hub) {
       }
     });
     await flush();
-    const isLocalCmd = job.steps.every((s) => s === "open" || s === "remove" || s === "pick_folder");
+    const isLocalCmd = job.steps.every((s) => s === "open" || s === "remove" || s === "pick_folder" || s === "list_dirs");
     if (ctx.artifacts.picked_path && hub) {
       await hub.updateDevice({ workspacePath: ctx.artifacts.picked_path });
       console.log(import_picocolors.default.green("\u2714 \uD074\uB860 \uD3F4\uB354 \uBCC0\uACBD:"), ctx.artifacts.picked_path);

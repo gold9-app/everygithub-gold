@@ -3,7 +3,7 @@ import type { RunContext, Step } from "./context";
 import { cloneStep } from "./steps/clone";
 import { analyzeStep } from "./steps/analyze";
 import { summaryStep } from "./steps/summary";
-import { openStep, removeStep, pickFolderStep } from "./steps/local";
+import { openStep, removeStep, pickFolderStep, listDirsStep } from "./steps/local";
 
 const REGISTRY: Partial<Record<StepName, Step>> = {
   clone: cloneStep,
@@ -12,6 +12,7 @@ const REGISTRY: Partial<Record<StepName, Step>> = {
   open: openStep,
   remove: removeStep,
   pick_folder: pickFolderStep,
+  list_dirs: listDirsStep,
   // docs / install / test / dev / skill / mcp / claude_md / obsidian / archive → 다음 단계에서 추가
 };
 

@@ -6,7 +6,7 @@ import { CommandBar, LiveFeed } from "./home";
 import { SectionTitle, LangDot, Badge, timeAgo } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
-const LOCAL = new Set(["open", "remove", "pick_folder"]);
+const LOCAL = new Set(["open", "remove", "pick_folder", "list_dirs"]);
 const isLocalJob = (j: any) => Array.isArray(j.steps) && j.steps.length > 0 && j.steps.every((s: string) => LOCAL.has(s));
 
 

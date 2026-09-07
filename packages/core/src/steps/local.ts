@@ -94,3 +94,44 @@ export const pickFolderStep: Step = {
     ctx.emit({ step: "pick_folder", level: "result", payload: { picked } });
   },
 };
+
+/** 사이트 폴더 브라우저용: options.targetDir 의 하위 폴더 목록 (비어 있으면 드라이브/바로가기 루트) */
+export const listDirsStep: Step = {
+  name: "list_dirs",
+  async run(ctx) {
+    const os = await import("node:os");
+    const target = (ctx.job.options.targetDir ?? "").trim();
+    const home = os.homedir();
+    const shortcuts: { name: string; path: string }[] = [];
+    for (const [name, rel] of [["바탕화면", "Desktop"], ["문서", "Documents"], ["다운로드", "Downloads"]] as const) {
+      const p = path.join(home, rel);
+      try { if ((await fs.stat(p)).isDirectory()) shortcuts.push({ name, path: p }); } catch {}
+    }
+    shortcuts.push({ name: "홈", path: home });
+    const roots: { name: string; path: string }[] = [];
+    if (process.platform === "win32") {
+      for (const L of "CDEFGHIJKLMNOPQRSTUVWXYZ") {
+        const p = `${L}:\\`;
+        try { await fs.access(p); roots.push({ name: `${L}: 드라이브`, path: p }); } catch {}
+      }
+    } else roots.push({ name: "/", path: "/" });
+
+    if (!target) {
+      ctx.emit({ step: "list_dirs", level: "result", payload: { path: "", parent: null, entries: [], roots, shortcuts, current: ctx.workspacePath } });
+      return;
+    }
+    const dir = path.resolve(target);
+    let names: { name: string; path: string }[] = [];
+    try {
+      const ents = await fs.readdir(dir, { withFileTypes: true });
+      names = ents.filter((e) => e.isDirectory() && !e.name.startsWith(".") && !e.name.startsWith("$") && !["node_modules", "System Volume Information", "Windows", "Program Files", "Program Files (x86)", "ProgramData", "AppData"].includes(e.name))
+        .map((e) => ({ name: e.name, path: path.join(dir, e.name) }))
+        .sort((a, b) => a.name.localeCompare(b.name, "ko"));
+    } catch (err) {
+      ctx.emit({ step: "list_dirs", level: "error", payload: { message: `폴더를 읽을 수 없습니다: ${dir}` } });
+      return;
+    }
+    const parent = path.dirname(dir) === dir ? null : path.dirname(dir);
+    ctx.emit({ step: "list_dirs", level: "result", payload: { path: dir, parent, entries: names.slice(0, 500), roots, shortcuts, current: ctx.workspacePath } });
+  },
+};

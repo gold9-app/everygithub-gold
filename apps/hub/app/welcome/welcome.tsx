@@ -70,7 +70,7 @@ export function Welcome({ initial }: Props) {
           </Step>
 
           <Step n={2} icon={FolderOpen} title="클론 폴더 정하기" done={step > 2} active={step === 2}
-            desc="레포가 저장될 폴더입니다. 기본값을 그대로 써도 되고, 버튼을 누르면 PC 화면에 폴더 선택창이 뜹니다.">
+            desc="레포가 저장될 폴더입니다. 기본값을 그대로 써도 되고, [폴더 선택] 으로 PC 의 폴더를 직접 고를 수 있습니다.">
             <div className="flex flex-wrap items-center gap-3">
               <code className="mono text-sm bg-bg-raised border border-line rounded-md px-3 h-9 inline-flex items-center">{workspace || "내 문서\\everygithub"}</code>
               {deviceId && <FolderPicker deviceId={deviceId} current={workspace} online={online} onPicked={(p) => setWorkspace(p)} />}
