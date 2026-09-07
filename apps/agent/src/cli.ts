@@ -10,6 +10,18 @@ import { executeJob } from "./runner";
 import { registerAutostart, removeAutostart } from "./autostart";
 import { selfUpdate } from "./self-update";
 
+/** 시작·종료·치명 오류를 별도 파일에 남긴다 (stdout 로그가 다른 프로세스에 덮여도 원인 추적 가능) */
+async function eventLog(line: string) {
+  try {
+    const { EVENTS_PATH } = await import("./config");
+    await fs.mkdir(CONFIG_DIR, { recursive: true });
+    await fs.appendFile(EVENTS_PATH, `[${new Date().toISOString()}] pid=${process.pid} v${AGENT_VERSION} ${line}\n`);
+  } catch {}
+}
+process.on("uncaughtException", (e) => { void eventLog("uncaughtException: " + (e?.stack ?? e)); setTimeout(() => process.exit(1), 200); });
+process.on("unhandledRejection", (e: any) => { void eventLog("unhandledRejection: " + (e?.stack ?? e)); });
+process.on("exit", (code) => { try { require("node:fs").appendFileSync(require("node:path").join(CONFIG_DIR, "agent-events.log"), `[${new Date().toISOString()}] pid=${process.pid} exit code=${code}\n`); } catch {} });
+
 const program = new Command();
 program.name("everygithub").description("everygithub_gold 에이전트").version(AGENT_VERSION);
 
@@ -59,6 +71,7 @@ program.command("config").description("현재 상태").action(async () => {
 });
 
 program.command("start", { isDefault: true }).description("허브에서 잡을 받아 실행 (백그라운드 데몬)").action(async () => {
+  await eventLog(`start invoked argv=${JSON.stringify(process.argv.slice(1))} cwd=${process.cwd()} node=${process.version}`);
   const cfg = await loadConfig();
   if (!cfg?.hubUrl || !cfg.deviceToken) {
     console.log(pc.yellow("사이트와 연결돼 있지 않습니다. 사이트 대시보드에서 [PC 연결 파일 받기] 를 실행하세요."));
@@ -73,6 +86,7 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
   } catch {}
   await fs.mkdir(CONFIG_DIR, { recursive: true });
   await fs.writeFile(PID_PATH, String(process.pid));
+  await eventLog("pid written, checking update");
   const selfPath = process.argv[1];
   if (await selfUpdate(cfg.hubUrl, selfPath)) return; // 새 프로세스가 이어받음
   setInterval(async () => { if (await selfUpdate(cfg.hubUrl!, selfPath)) process.exit(0); }, 60 * 60 * 1000);
@@ -89,6 +103,7 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
     } catch (err) { console.error(pc.red("설정 불러오기 실패:"), (err as Error).message); }
   };
   await refreshSettings();
+  await eventLog(`polling started workspace=${settings.workspacePath}`);
   console.log(pc.bold(`everygithub agent v${AGENT_VERSION}`), pc.dim(`허브 ${cfg.hubUrl} · 폴더 ${settings.workspacePath}`));
   console.log(pc.dim("잡 대기 중…"));
   let failures = 0, ticks = 0;
@@ -103,6 +118,7 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
       if (msg.includes("→ 401")) {
         // 사이트에서 이 PC 가 해제됐거나 다른 인스턴스가 새로 연결됨 → 이 프로세스는 물러난다
         console.log(pc.yellow("이 PC 의 연결이 해제되었거나 새 연결로 대체되었습니다. 종료합니다."));
+        await eventLog("401 from hub → exiting");
         process.exit(0);
       }
       failures++;

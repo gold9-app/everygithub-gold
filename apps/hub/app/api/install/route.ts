@@ -58,8 +58,16 @@ export async function GET() {
     "  echo  Connect failed. Download a fresh setup file from the site and run again.",
     "  goto :fail",
     ")",
-    "echo  [3/3] Starting agent in background...",
-    'start "" /min cmd /c "node "%DIR%\\cli.mjs" start > "%DIR%\\agent.log" 2>&1"',
+    "echo  [3/3] Stopping old agent and starting new one...",
+    // 이전 에이전트 프로세스(cli.mjs start) 전부 종료 — 중복·좀비 방지
+    "powershell -NoProfile -Command \"Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*everygithub*cli.mjs*start*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }\" >nul 2>&1",
+    'del /q "%DIR%\\agent.log" >nul 2>&1',
+    // 로그 파일이 아직 잠겨 있으면(좀비 프로세스) 다른 이름으로 — 잠긴 파일로 리다이렉트하면 명령 자체가 실행되지 않음
+    'set "AGENTLOG=%DIR%\\agent.log"',
+    'if exist "%DIR%\\agent.log" set "AGENTLOG=%DIR%\\agent-%RANDOM%.log"',
+    'start "" /min cmd /c "node "%DIR%\\cli.mjs" start > "%AGENTLOG%" 2>&1"',
+    "timeout /t 3 >nul",
+    'if exist "%USERPROFILE%\\.everygithub\\agent.pid" (echo  Agent is running.) else (echo  WARNING: agent did not start. See %USERPROFILE%\\.everygithub\\agent-events.log)',
     "echo.",
     "echo  DONE. You can close this window.",
     "echo  The site will show this PC as online in a few seconds.",
