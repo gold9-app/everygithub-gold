@@ -26610,11 +26610,19 @@ var listDirsStep = {
         }
       }
     } else roots.push({ name: "/", path: "/" });
-    if (!target) {
+    const expanded = target.startsWith("~") ? path9.join(home, target.slice(1)) : target;
+    let dir = expanded ? path9.resolve(expanded) : "";
+    if (dir) {
+      try {
+        if (!(await fs4.stat(dir)).isDirectory()) dir = "";
+      } catch {
+        dir = "";
+      }
+    }
+    if (!dir) {
       ctx.emit({ step: "list_dirs", level: "result", payload: { path: "", parent: null, entries: [], roots, shortcuts, current: ctx.workspacePath } });
       return;
     }
-    const dir = path9.resolve(target);
     let names = [];
     try {
       const ents = await fs4.readdir(dir, { withFileTypes: true });
@@ -26835,6 +26843,10 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
     console.log(import_picocolors3.default.yellow("\uC0AC\uC774\uD2B8\uC640 \uC5F0\uACB0\uB3FC \uC788\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC0AC\uC774\uD2B8 \uB300\uC2DC\uBCF4\uB4DC\uC5D0\uC11C [PC \uC5F0\uACB0 \uD30C\uC77C \uBC1B\uAE30] \uB97C \uC2E4\uD589\uD558\uC138\uC694."));
     console.log(import_picocolors3.default.dim("\uD5C8\uBE0C \uC5C6\uC774 \uC4F0\uB824\uBA74: everygithub add <github url>"));
     return;
+  }
+  try {
+    process.chdir(os3.homedir());
+  } catch {
   }
   const selfPath = process.argv[1];
   if (await selfUpdate(cfg.hubUrl, selfPath)) return;

@@ -116,11 +116,14 @@ export const listDirsStep: Step = {
       }
     } else roots.push({ name: "/", path: "/" });
 
-    if (!target) {
+    // "~" 는 홈 폴더로, 존재하지 않는 경로면 루트 화면으로 (에러 대신)
+    const expanded = target.startsWith("~") ? path.join(home, target.slice(1)) : target;
+    let dir = expanded ? path.resolve(expanded) : "";
+    if (dir) { try { if (!(await fs.stat(dir)).isDirectory()) dir = ""; } catch { dir = ""; } }
+    if (!dir) {
       ctx.emit({ step: "list_dirs", level: "result", payload: { path: "", parent: null, entries: [], roots, shortcuts, current: ctx.workspacePath } });
       return;
     }
-    const dir = path.resolve(target);
     let names: { name: string; path: string }[] = [];
     try {
       const ents = await fs.readdir(dir, { withFileTypes: true });

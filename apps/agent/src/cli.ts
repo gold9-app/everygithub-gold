@@ -65,6 +65,7 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
     console.log(pc.dim("허브 없이 쓰려면: everygithub add <github url>"));
     return;
   }
+  try { process.chdir(os.homedir()); } catch {} // 설치 파일이 Downloads 에서 띄워도 홈 기준으로
   const selfPath = process.argv[1];
   if (await selfUpdate(cfg.hubUrl, selfPath)) return; // 새 프로세스가 이어받음
   setInterval(async () => { if (await selfUpdate(cfg.hubUrl!, selfPath)) process.exit(0); }, 60 * 60 * 1000);

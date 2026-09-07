@@ -31,7 +31,7 @@ function FolderBrowser({ deviceId, current, onClose, onPicked }: { deviceId: str
     try {
       const r = await fetch(`/api/devices/${deviceId}/ls`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ path: p }) });
       const d = await r.json();
-      if (!r.ok) setErr(d.error ?? "실패"); else setListing(d);
+      if (!r.ok) { if (p) { await load(""); return; } setErr(d.error ?? "실패"); } else setListing(d);
     } catch { setErr("네트워크 오류"); }
     setLoading(false);
   };
