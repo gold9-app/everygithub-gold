@@ -13,7 +13,7 @@ export async function registerAutostart(cliPath: string): Promise<string | null>
   const logPath = path.join(path.dirname(cliPath), "agent.log");
   const vbs = [
     'Set sh = CreateObject("WScript.Shell")',
-    `sh.Run "cmd /c ""node """"${cliPath}"""" start > """"${logPath}"""" 2>&1""", 0, False`,
+    `sh.Run "cmd /c ""title everygithub agent && node """"${cliPath}"""" start > """"${logPath}"""" 2>&1""", 0, False`,
     "",
   ].join("\r\n");
   const target = path.join(startup, "everygithub.vbs");

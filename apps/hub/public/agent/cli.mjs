@@ -12,6 +12,9 @@ var __require = /* @__PURE__ */ ((x2) => typeof require !== "undefined" ? requir
   if (typeof require !== "undefined") return require.apply(this, arguments);
   throw Error('Dynamic require of "' + x2 + '" is not supported');
 });
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
 var __commonJS = (cb, mod) => function __require2() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -3098,6 +3101,58 @@ var require_picocolors = __commonJS({
     };
     module.exports = createColors();
     module.exports.createColors = createColors;
+  }
+});
+
+// apps/agent/src/config.ts
+var config_exports = {};
+__export(config_exports, {
+  AGENT_VERSION: () => AGENT_VERSION,
+  CONFIG_DIR: () => CONFIG_DIR,
+  CONFIG_PATH: () => CONFIG_PATH,
+  EVENTS_PATH: () => EVENTS_PATH,
+  PID_PATH: () => PID_PATH,
+  currentOS: () => currentOS,
+  defaultWorkspace: () => defaultWorkspace,
+  loadConfig: () => loadConfig,
+  resolveWorkspace: () => resolveWorkspace,
+  saveConfig: () => saveConfig
+});
+import { promises as fs } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+async function loadConfig() {
+  try {
+    return JSON.parse(await fs.readFile(CONFIG_PATH, "utf8"));
+  } catch {
+    return null;
+  }
+}
+async function saveConfig(cfg) {
+  await fs.mkdir(CONFIG_DIR, { recursive: true });
+  await fs.writeFile(CONFIG_PATH, JSON.stringify(cfg, null, 2), { mode: 384 });
+}
+function currentOS() {
+  return process.platform === "win32" ? "windows" : process.platform === "darwin" ? "mac" : "linux";
+}
+function resolveWorkspace(p2) {
+  if (!p2) return defaultWorkspace();
+  if (p2.startsWith("~")) return path.join(os.homedir(), p2.slice(1));
+  return path.resolve(p2);
+}
+function defaultWorkspace() {
+  const docs = process.platform === "win32" ? path.join(os.homedir(), "Documents") : os.homedir();
+  return path.join(docs, "everygithub");
+}
+var CONFIG_DIR, CONFIG_PATH, PID_PATH, EVENTS_PATH, AGENT_VERSION;
+var init_config = __esm({
+  "apps/agent/src/config.ts"() {
+    "use strict";
+    CONFIG_DIR = path.join(os.homedir(), ".everygithub");
+    CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
+    PID_PATH = path.join(CONFIG_DIR, "agent.pid");
+    EVENTS_PATH = path.join(CONFIG_DIR, "agent-events.log");
+    AGENT_VERSION = "0.3.0";
   }
 });
 
@@ -14349,37 +14404,8 @@ var AgentSettings = external_exports.object({
   pollIntervalMs: external_exports.number().default(3e3)
 });
 
-// apps/agent/src/config.ts
-import { promises as fs } from "node:fs";
-import os from "node:os";
-import path from "node:path";
-var CONFIG_DIR = path.join(os.homedir(), ".everygithub");
-var CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
-var PID_PATH = path.join(CONFIG_DIR, "agent.pid");
-var AGENT_VERSION = "0.3.0";
-async function loadConfig() {
-  try {
-    return JSON.parse(await fs.readFile(CONFIG_PATH, "utf8"));
-  } catch {
-    return null;
-  }
-}
-async function saveConfig(cfg) {
-  await fs.mkdir(CONFIG_DIR, { recursive: true });
-  await fs.writeFile(CONFIG_PATH, JSON.stringify(cfg, null, 2), { mode: 384 });
-}
-function currentOS() {
-  return process.platform === "win32" ? "windows" : process.platform === "darwin" ? "mac" : "linux";
-}
-function resolveWorkspace(p2) {
-  if (!p2) return defaultWorkspace();
-  if (p2.startsWith("~")) return path.join(os.homedir(), p2.slice(1));
-  return path.resolve(p2);
-}
-function defaultWorkspace() {
-  const docs = process.platform === "win32" ? path.join(os.homedir(), "Documents") : os.homedir();
-  return path.join(docs, "everygithub");
-}
+// apps/agent/src/cli.ts
+init_config();
 
 // apps/agent/src/hub-client.ts
 var HubClient = class {
@@ -14922,7 +14948,7 @@ var __defProp2 = Object.defineProperty;
 var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames2 = Object.getOwnPropertyNames;
 var __hasOwnProp2 = Object.prototype.hasOwnProperty;
-var __esm = (fn, res) => function __init() {
+var __esm2 = (fn, res) => function __init() {
   return fn && (res = (0, fn[__getOwnPropNames2(fn)[0]])(fn = 0)), res;
 };
 var __commonJS2 = (cb, mod) => function __require2() {
@@ -14942,7 +14968,7 @@ var __copyProps2 = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps2(__defProp2({}, "__esModule", { value: true }), mod);
 var GitError;
-var init_git_error = __esm({
+var init_git_error = __esm2({
   "src/lib/errors/git-error.ts"() {
     "use strict";
     GitError = class extends Error {
@@ -14955,7 +14981,7 @@ var init_git_error = __esm({
   }
 });
 var GitResponseError;
-var init_git_response_error = __esm({
+var init_git_response_error = __esm2({
   "src/lib/errors/git-response-error.ts"() {
     "use strict";
     init_git_error();
@@ -14968,7 +14994,7 @@ var init_git_response_error = __esm({
   }
 });
 var TaskConfigurationError;
-var init_task_configuration_error = __esm({
+var init_task_configuration_error = __esm2({
   "src/lib/errors/task-configuration-error.ts"() {
     "use strict";
     init_git_error();
@@ -15099,7 +15125,7 @@ function orVoid(input) {
 var NULL;
 var NOOP;
 var objectToString;
-var init_util = __esm({
+var init_util = __esm2({
   "src/lib/utils/util.ts"() {
     "use strict";
     init_argument_filters();
@@ -15130,7 +15156,7 @@ var filterNumber;
 var filterString;
 var filterStringOrStringArray;
 var filterHasLength;
-var init_argument_filters = __esm({
+var init_argument_filters = __esm2({
   "src/lib/utils/argument-filters.ts"() {
     "use strict";
     init_util();
@@ -15155,7 +15181,7 @@ var init_argument_filters = __esm({
   }
 });
 var ExitCodes;
-var init_exit_codes = __esm({
+var init_exit_codes = __esm2({
   "src/lib/utils/exit-codes.ts"() {
     "use strict";
     ExitCodes = /* @__PURE__ */ ((ExitCodes2) => {
@@ -15168,7 +15194,7 @@ var init_exit_codes = __esm({
   }
 });
 var GitOutputStreams;
-var init_git_output_streams = __esm({
+var init_git_output_streams = __esm2({
   "src/lib/utils/git-output-streams.ts"() {
     "use strict";
     GitOutputStreams = class _GitOutputStreams {
@@ -15187,7 +15213,7 @@ function useMatchesDefault() {
 }
 var LineParser;
 var RemoteLineParser;
-var init_line_parser = __esm({
+var init_line_parser = __esm2({
   "src/lib/utils/line-parser.ts"() {
     "use strict";
     LineParser = class {
@@ -15246,7 +15272,7 @@ function createInstanceConfig(...options) {
   return config;
 }
 var defaultOptions;
-var init_simple_git_options = __esm({
+var init_simple_git_options = __esm2({
   "src/lib/utils/simple-git-options.ts"() {
     "use strict";
     defaultOptions = {
@@ -15304,7 +15330,7 @@ function trailingFunctionArgument(args, includeNoop = true) {
   const callback = asFunction(last(args));
   return includeNoop || isUserFunction(callback) ? callback : void 0;
 }
-var init_task_options = __esm({
+var init_task_options = __esm2({
   "src/lib/utils/task-options.ts"() {
     "use strict";
     init_argument_filters();
@@ -15328,7 +15354,7 @@ function parseStringResponse(result, parsers12, texts, trim = true) {
   });
   return result;
 }
-var init_task_parser = __esm({
+var init_task_parser = __esm2({
   "src/lib/utils/task-parser.ts"() {
     "use strict";
     init_util();
@@ -15380,7 +15406,7 @@ __export2(utils_exports, {
   trailingFunctionArgument: () => trailingFunctionArgument,
   trailingOptionsArgument: () => trailingOptionsArgument
 });
-var init_utils = __esm({
+var init_utils = __esm2({
   "src/lib/utils/index.ts"() {
     "use strict";
     init_argument_filters();
@@ -15441,7 +15467,7 @@ function isNotRepoMessage(error) {
 var CheckRepoActions;
 var onError;
 var parser;
-var init_check_is_repo = __esm({
+var init_check_is_repo = __esm2({
   "src/lib/tasks/check-is-repo.ts"() {
     "use strict";
     init_utils();
@@ -15476,7 +15502,7 @@ var CleanResponse;
 var removalRegexp;
 var dryRunRemovalRegexp;
 var isFolderRegexp;
-var init_CleanSummary = __esm({
+var init_CleanSummary = __esm2({
   "src/lib/responses/CleanSummary.ts"() {
     "use strict";
     init_utils();
@@ -15544,7 +15570,7 @@ function isEmptyTask(task) {
   return task.format === "empty" || !task.commands.length;
 }
 var EMPTY_COMMANDS;
-var init_task = __esm({
+var init_task = __esm2({
   "src/lib/tasks/task.ts"() {
     "use strict";
     init_task_configuration_error();
@@ -15623,7 +15649,7 @@ var CONFIG_ERROR_MODE_REQUIRED;
 var CONFIG_ERROR_UNKNOWN_OPTION;
 var CleanOptions;
 var CleanOptionValues;
-var init_clean = __esm({
+var init_clean = __esm2({
   "src/lib/tasks/clean.ts"() {
     "use strict";
     init_CleanSummary();
@@ -15695,7 +15721,7 @@ function* configParser(text, requestedKey = null) {
   }
 }
 var ConfigList;
-var init_ConfigList = __esm({
+var init_ConfigList = __esm2({
   "src/lib/responses/ConfigList.ts"() {
     "use strict";
     init_utils();
@@ -15812,7 +15838,7 @@ function config_default() {
   };
 }
 var GitConfigScope;
-var init_config = __esm({
+var init_config2 = __esm2({
   "src/lib/tasks/config.ts"() {
     "use strict";
     init_ConfigList();
@@ -15831,7 +15857,7 @@ function isDiffNameStatus(input) {
 }
 var DiffNameStatus;
 var diffNameStatus;
-var init_diff_name_status = __esm({
+var init_diff_name_status = __esm2({
   "src/lib/tasks/diff-name-status.ts"() {
     "use strict";
     DiffNameStatus = /* @__PURE__ */ ((DiffNameStatus2) => {
@@ -15903,7 +15929,7 @@ var disallowedOptions;
 var Query;
 var _a;
 var GrepQuery;
-var init_grep = __esm({
+var init_grep = __esm2({
   "src/lib/tasks/grep.ts"() {
     "use strict";
     init_utils();
@@ -15960,7 +15986,7 @@ function isValidResetMode(mode) {
 }
 var ResetMode;
 var validResetModes;
-var init_reset = __esm({
+var init_reset = __esm2({
   "src/lib/tasks/reset.ts"() {
     "use strict";
     init_utils();
@@ -16027,7 +16053,7 @@ function createLogger(label, verbose, initialStep, infoDebugger = createLog()) {
     });
   }
 }
-var init_git_logger = __esm({
+var init_git_logger = __esm2({
   "src/lib/git-logger.ts"() {
     "use strict";
     init_utils();
@@ -16041,7 +16067,7 @@ var init_git_logger = __esm({
   }
 });
 var TasksPendingQueue;
-var init_tasks_pending_queue = __esm({
+var init_tasks_pending_queue = __esm2({
   "src/lib/runners/tasks-pending-queue.ts"() {
     "use strict";
     init_git_error();
@@ -16131,7 +16157,7 @@ function onDataReceived(target, name, logger, output) {
   };
 }
 var GitExecutorChain;
-var init_git_executor_chain = __esm({
+var init_git_executor_chain = __esm2({
   "src/lib/runners/git-executor-chain.ts"() {
     "use strict";
     init_git_error();
@@ -16335,7 +16361,7 @@ __export2(git_executor_exports, {
   GitExecutor: () => GitExecutor
 });
 var GitExecutor;
-var init_git_executor = __esm({
+var init_git_executor = __esm2({
   "src/lib/runners/git-executor.ts"() {
     "use strict";
     init_git_executor_chain();
@@ -16392,7 +16418,7 @@ function addDeprecationNoticeToError(err) {
     return all;
   }
 }
-var init_task_callback = __esm({
+var init_task_callback = __esm2({
   "src/lib/task-callback.ts"() {
     "use strict";
     init_git_response_error();
@@ -16407,7 +16433,7 @@ function changeWorkingDirectoryTask(directory, root) {
     return (root || instance).cwd = directory;
   });
 }
-var init_change_working_directory = __esm({
+var init_change_working_directory = __esm2({
   "src/lib/tasks/change-working-directory.ts"() {
     "use strict";
     init_utils();
@@ -16443,7 +16469,7 @@ function checkout_default() {
     }
   };
 }
-var init_checkout = __esm({
+var init_checkout = __esm2({
   "src/lib/tasks/checkout.ts"() {
     "use strict";
     init_utils();
@@ -16476,7 +16502,7 @@ function count_objects_default() {
   };
 }
 var parser2;
-var init_count_objects = __esm({
+var init_count_objects = __esm2({
   "src/lib/tasks/count-objects.ts"() {
     "use strict";
     init_utils();
@@ -16506,7 +16532,7 @@ function parseCommitResult(stdOut) {
   return parseStringResponse(result, parsers, stdOut);
 }
 var parsers;
-var init_parse_commit = __esm({
+var init_parse_commit = __esm2({
   "src/lib/parsers/parse-commit.ts"() {
     "use strict";
     init_utils();
@@ -16586,7 +16612,7 @@ function commit_default() {
     );
   }
 }
-var init_commit = __esm({
+var init_commit = __esm2({
   "src/lib/tasks/commit.ts"() {
     "use strict";
     init_parse_commit();
@@ -16604,7 +16630,7 @@ function first_commit_default() {
     }
   };
 }
-var init_first_commit = __esm({
+var init_first_commit = __esm2({
   "src/lib/tasks/first-commit.ts"() {
     "use strict";
     init_utils();
@@ -16618,7 +16644,7 @@ function hashObjectTask(filePath, write) {
   }
   return straightThroughStringTask(commands, true);
 }
-var init_hash_object = __esm({
+var init_hash_object = __esm2({
   "src/lib/tasks/hash-object.ts"() {
     "use strict";
     init_task();
@@ -16647,7 +16673,7 @@ function parseInit(bare, path11, text) {
 var InitSummary;
 var initResponseRegex;
 var reInitResponseRegex;
-var init_InitSummary = __esm({
+var init_InitSummary = __esm2({
   "src/lib/responses/InitSummary.ts"() {
     "use strict";
     InitSummary = class {
@@ -16679,7 +16705,7 @@ function initTask(bare = false, path11, customArgs) {
   };
 }
 var bareCommand;
-var init_init = __esm({
+var init_init = __esm2({
   "src/lib/tasks/init.ts"() {
     "use strict";
     init_InitSummary();
@@ -16699,14 +16725,14 @@ function isLogFormat(customArg) {
   return logFormatRegex.test(customArg);
 }
 var logFormatRegex;
-var init_log_format = __esm({
+var init_log_format = __esm2({
   "src/lib/args/log-format.ts"() {
     "use strict";
     logFormatRegex = /^--(stat|numstat|name-only|name-status)(=|$)/;
   }
 });
 var DiffSummary;
-var init_DiffSummary = __esm({
+var init_DiffSummary = __esm2({
   "src/lib/responses/DiffSummary.ts"() {
     "use strict";
     DiffSummary = class {
@@ -16728,7 +16754,7 @@ var numStatParser;
 var nameOnlyParser;
 var nameStatusParser;
 var diffSummaryParsers;
-var init_parse_diff_summary = __esm({
+var init_parse_diff_summary = __esm2({
   "src/lib/parsers/parse-diff-summary.ts"() {
     "use strict";
     init_log_format();
@@ -16887,7 +16913,7 @@ var START_BOUNDARY;
 var COMMIT_BOUNDARY;
 var SPLITTER;
 var defaultFieldNames;
-var init_parse_list_log_summary = __esm({
+var init_parse_list_log_summary = __esm2({
   "src/lib/parsers/parse-list-log-summary.ts"() {
     "use strict";
     init_utils();
@@ -16931,7 +16957,7 @@ function validateLogFormatConfig(customArgs) {
     );
   }
 }
-var init_diff = __esm({
+var init_diff = __esm2({
   "src/lib/tasks/diff.ts"() {
     "use strict";
     init_log_format();
@@ -17021,7 +17047,7 @@ function log_default() {
   }
 }
 var excludeOptions;
-var init_log = __esm({
+var init_log = __esm2({
   "src/lib/tasks/log.ts"() {
     "use strict";
     init_log_format();
@@ -17049,7 +17075,7 @@ var init_log = __esm({
 });
 var MergeSummaryConflict;
 var MergeSummaryDetail;
-var init_MergeSummary = __esm({
+var init_MergeSummary = __esm2({
   "src/lib/responses/MergeSummary.ts"() {
     "use strict";
     MergeSummaryConflict = class {
@@ -17085,7 +17111,7 @@ var init_MergeSummary = __esm({
 });
 var PullSummary;
 var PullFailedSummary;
-var init_PullSummary = __esm({
+var init_PullSummary = __esm2({
   "src/lib/responses/PullSummary.ts"() {
     "use strict";
     PullSummary = class {
@@ -17143,7 +17169,7 @@ function asObjectCount(source) {
   };
 }
 var remoteMessagesObjectParsers;
-var init_parse_remote_objects = __esm({
+var init_parse_remote_objects = __esm2({
   "src/lib/parsers/parse-remote-objects.ts"() {
     "use strict";
     init_utils();
@@ -17181,7 +17207,7 @@ function parseRemoteMessages(_stdOut, stdErr) {
 }
 var parsers2;
 var RemoteMessageSummary;
-var init_parse_remote_messages = __esm({
+var init_parse_remote_messages = __esm2({
   "src/lib/parsers/parse-remote-messages.ts"() {
     "use strict";
     init_utils();
@@ -17227,7 +17253,7 @@ var parsers3;
 var errorParsers;
 var parsePullDetail;
 var parsePullResult;
-var init_parse_pull = __esm({
+var init_parse_pull = __esm2({
   "src/lib/parsers/parse-pull.ts"() {
     "use strict";
     init_PullSummary();
@@ -17288,7 +17314,7 @@ var init_parse_pull = __esm({
 var parsers4;
 var parseMergeResult;
 var parseMergeDetail;
-var init_parse_merge = __esm({
+var init_parse_merge = __esm2({
   "src/lib/parsers/parse-merge.ts"() {
     "use strict";
     init_MergeSummary();
@@ -17338,7 +17364,7 @@ function mergeTask(customArgs) {
     }
   };
 }
-var init_merge = __esm({
+var init_merge = __esm2({
   "src/lib/tasks/merge.ts"() {
     "use strict";
     init_git_response_error();
@@ -17363,7 +17389,7 @@ function pushResultPushedItem(local, remote, status) {
 var parsers5;
 var parsePushResult;
 var parsePushDetail;
-var init_parse_push = __esm({
+var init_parse_push = __esm2({
   "src/lib/parsers/parse-push.ts"() {
     "use strict";
     init_utils();
@@ -17447,7 +17473,7 @@ function pushTask(ref = {}, customArgs) {
     parser: parsePushResult
   };
 }
-var init_push = __esm({
+var init_push = __esm2({
   "src/lib/tasks/push.ts"() {
     "use strict";
     init_parse_push();
@@ -17475,7 +17501,7 @@ function show_default() {
     }
   };
 }
-var init_show = __esm({
+var init_show = __esm2({
   "src/lib/tasks/show.ts"() {
     "use strict";
     init_utils();
@@ -17484,7 +17510,7 @@ var init_show = __esm({
 });
 var fromPathRegex;
 var FileStatusSummary;
-var init_FileStatusSummary = __esm({
+var init_FileStatusSummary = __esm2({
   "src/lib/responses/FileStatusSummary.ts"() {
     "use strict";
     fromPathRegex = /^(.+)\0(.+)$/;
@@ -17539,7 +17565,7 @@ function splitLine(result, lineStr) {
 var StatusSummary;
 var parsers6;
 var parseStatusSummary;
-var init_StatusSummary = __esm({
+var init_StatusSummary = __esm2({
   "src/lib/responses/StatusSummary.ts"() {
     "use strict";
     init_utils();
@@ -17696,7 +17722,7 @@ function statusTask(customArgs) {
   };
 }
 var ignoredOptions;
-var init_status = __esm({
+var init_status = __esm2({
   "src/lib/tasks/status.ts"() {
     "use strict";
     init_StatusSummary();
@@ -17750,7 +17776,7 @@ function versionParser(stdOut) {
 }
 var NOT_INSTALLED;
 var parsers7;
-var init_version = __esm({
+var init_version = __esm2({
   "src/lib/tasks/version.ts"() {
     "use strict";
     init_utils();
@@ -17798,7 +17824,7 @@ function clone_default() {
 }
 var cloneTask;
 var cloneMirrorTask;
-var init_clone = __esm({
+var init_clone = __esm2({
   "src/lib/tasks/clone.ts"() {
     "use strict";
     init_task();
@@ -17820,7 +17846,7 @@ __export2(simple_git_api_exports, {
   SimpleGitApi: () => SimpleGitApi
 });
 var SimpleGitApi;
-var init_simple_git_api = __esm({
+var init_simple_git_api = __esm2({
   "src/lib/simple-git-api.ts"() {
     "use strict";
     init_task_callback();
@@ -17828,7 +17854,7 @@ var init_simple_git_api = __esm({
     init_checkout();
     init_count_objects();
     init_commit();
-    init_config();
+    init_config2();
     init_first_commit();
     init_grep();
     init_hash_object();
@@ -17962,7 +17988,7 @@ __export2(scheduler_exports, {
 });
 var createScheduledTask;
 var Scheduler;
-var init_scheduler = __esm({
+var init_scheduler = __esm2({
   "src/lib/runners/scheduler.ts"() {
     "use strict";
     init_utils();
@@ -18021,7 +18047,7 @@ __export2(apply_patch_exports, {
 function applyPatchTask(patches, customArgs) {
   return straightThroughStringTask(["apply", ...customArgs, ...patches]);
 }
-var init_apply_patch = __esm({
+var init_apply_patch = __esm2({
   "src/lib/tasks/apply-patch.ts"() {
     "use strict";
     init_task();
@@ -18042,7 +18068,7 @@ function branchDeletionFailure(branch) {
   };
 }
 var BranchDeletionBatch;
-var init_BranchDeleteSummary = __esm({
+var init_BranchDeleteSummary = __esm2({
   "src/lib/responses/BranchDeleteSummary.ts"() {
     "use strict";
     BranchDeletionBatch = class {
@@ -18064,7 +18090,7 @@ var deleteSuccessRegex;
 var deleteErrorRegex;
 var parsers8;
 var parseBranchDeletions;
-var init_parse_branch_delete = __esm({
+var init_parse_branch_delete = __esm2({
   "src/lib/parsers/parse-branch-delete.ts"() {
     "use strict";
     init_BranchDeleteSummary();
@@ -18090,7 +18116,7 @@ var init_parse_branch_delete = __esm({
   }
 });
 var BranchSummaryResult;
-var init_BranchSummary = __esm({
+var init_BranchSummary = __esm2({
   "src/lib/responses/BranchSummary.ts"() {
     "use strict";
     BranchSummaryResult = class {
@@ -18129,7 +18155,7 @@ function parseBranchSummary(stdOut, currentOnly = false) {
 }
 var parsers9;
 var currentBranchParser;
-var init_parse_branch = __esm({
+var init_parse_branch = __esm2({
   "src/lib/parsers/parse-branch.ts"() {
     "use strict";
     init_BranchSummary();
@@ -18229,7 +18255,7 @@ function deleteBranchTask(branch, forceDelete = false) {
   };
   return task;
 }
-var init_branch = __esm({
+var init_branch = __esm2({
   "src/lib/tasks/branch.ts"() {
     "use strict";
     init_git_response_error();
@@ -18243,7 +18269,7 @@ function toPath(input) {
   return path11 && normalize(path11);
 }
 var parseCheckIgnore;
-var init_CheckIgnore = __esm({
+var init_CheckIgnore = __esm2({
   "src/lib/responses/CheckIgnore.ts"() {
     "use strict";
     parseCheckIgnore = (text) => {
@@ -18262,7 +18288,7 @@ function checkIgnoreTask(paths) {
     parser: parseCheckIgnore
   };
 }
-var init_check_ignore = __esm({
+var init_check_ignore = __esm2({
   "src/lib/tasks/check-ignore.ts"() {
     "use strict";
     init_CheckIgnore();
@@ -18280,7 +18306,7 @@ function parseFetchResult(stdOut, stdErr) {
   return parseStringResponse(result, parsers10, [stdOut, stdErr]);
 }
 var parsers10;
-var init_parse_fetch = __esm({
+var init_parse_fetch = __esm2({
   "src/lib/parsers/parse-fetch.ts"() {
     "use strict";
     init_utils();
@@ -18341,7 +18367,7 @@ function fetchTask(remote, branch, customArgs) {
     parser: parseFetchResult
   };
 }
-var init_fetch = __esm({
+var init_fetch = __esm2({
   "src/lib/tasks/fetch.ts"() {
     "use strict";
     init_parse_fetch();
@@ -18352,7 +18378,7 @@ function parseMoveResult(stdOut) {
   return parseStringResponse({ moves: [] }, parsers11, stdOut);
 }
 var parsers11;
-var init_parse_move = __esm({
+var init_parse_move = __esm2({
   "src/lib/parsers/parse-move.ts"() {
     "use strict";
     init_utils();
@@ -18374,7 +18400,7 @@ function moveTask(from, to) {
     parser: parseMoveResult
   };
 }
-var init_move = __esm({
+var init_move = __esm2({
   "src/lib/tasks/move.ts"() {
     "use strict";
     init_parse_move();
@@ -18408,7 +18434,7 @@ function pullTask(remote, branch, customArgs) {
     }
   };
 }
-var init_pull = __esm({
+var init_pull = __esm2({
   "src/lib/tasks/pull.ts"() {
     "use strict";
     init_git_response_error();
@@ -18439,7 +18465,7 @@ function parseGetRemotesVerbose(text) {
 function forEach(text, handler) {
   forEachLineWithContent(text, (line) => handler(line.split(/\s+/)));
 }
-var init_GetRemoteSummary = __esm({
+var init_GetRemoteSummary = __esm2({
   "src/lib/responses/GetRemoteSummary.ts"() {
     "use strict";
     init_utils();
@@ -18484,7 +18510,7 @@ function remoteTask(customArgs) {
 function removeRemoteTask(remoteName) {
   return straightThroughStringTask(["remote", "remove", remoteName]);
 }
-var init_remote = __esm({
+var init_remote = __esm2({
   "src/lib/tasks/remote.ts"() {
     "use strict";
     init_GetRemoteSummary();
@@ -18509,7 +18535,7 @@ function stashListTask(opt = {}, customArgs) {
     parser: parser4
   };
 }
-var init_stash_list = __esm({
+var init_stash_list = __esm2({
   "src/lib/tasks/stash-list.ts"() {
     "use strict";
     init_log_format();
@@ -18541,7 +18567,7 @@ function subModuleTask(customArgs) {
 function updateSubModuleTask(customArgs) {
   return subModuleTask(["update", ...customArgs]);
 }
-var init_sub_module = __esm({
+var init_sub_module = __esm2({
   "src/lib/tasks/sub-module.ts"() {
     "use strict";
     init_task();
@@ -18569,7 +18595,7 @@ function toNumber(input) {
 }
 var TagList;
 var parseTagList;
-var init_TagList = __esm({
+var init_TagList = __esm2({
   "src/lib/responses/TagList.ts"() {
     "use strict";
     TagList = class {
@@ -18635,7 +18661,7 @@ function addAnnotatedTagTask(name, tagMessage) {
     }
   };
 }
-var init_tag = __esm({
+var init_tag = __esm2({
   "src/lib/tasks/tag.ts"() {
     "use strict";
     init_TagList();
@@ -19030,7 +19056,7 @@ init_git_response_error();
 init_task_configuration_error();
 init_check_is_repo();
 init_clean();
-init_config();
+init_config2();
 init_diff_name_status();
 init_grep();
 init_reset();
@@ -26752,7 +26778,7 @@ async function registerAutostart(cliPath) {
   const logPath = path10.join(path10.dirname(cliPath), "agent.log");
   const vbs = [
     'Set sh = CreateObject("WScript.Shell")',
-    `sh.Run "cmd /c ""node """"${cliPath}"""" start > """"${logPath}"""" 2>&1""", 0, False`,
+    `sh.Run "cmd /c ""title everygithub agent && node """"${cliPath}"""" start > """"${logPath}"""" 2>&1""", 0, False`,
     ""
   ].join("\r\n");
   const target = path10.join(startup, "everygithub.vbs");
@@ -26785,7 +26811,7 @@ async function selfUpdate(hubUrl, selfPath) {
     const tmp = selfPath + ".new";
     await fs6.writeFile(tmp, body);
     await fs6.rename(tmp, selfPath);
-    const child = spawn3(process.execPath, [selfPath, "start"], { detached: true, stdio: "ignore", windowsHide: true });
+    const child = process.platform === "win32" ? spawn3("cmd", ["/c", "start", "everygithub agent", "/min", "cmd", "/c", `title everygithub agent && "${process.execPath}" "${selfPath}" start`], { detached: true, stdio: "ignore", windowsHide: true }) : spawn3(process.execPath, [selfPath, "start"], { detached: true, stdio: "ignore" });
     child.unref();
     console.log(import_picocolors2.default.green("\u2714 \uC5C5\uB370\uC774\uD2B8 \uC644\uB8CC \u2014 \uC7AC\uC2DC\uC791"));
     return true;
@@ -26796,6 +26822,29 @@ async function selfUpdate(hubUrl, selfPath) {
 }
 
 // apps/agent/src/cli.ts
+async function eventLog(line) {
+  try {
+    const { EVENTS_PATH: EVENTS_PATH2 } = await Promise.resolve().then(() => (init_config(), config_exports));
+    await fs7.mkdir(CONFIG_DIR, { recursive: true });
+    await fs7.appendFile(EVENTS_PATH2, `[${(/* @__PURE__ */ new Date()).toISOString()}] pid=${process.pid} v${AGENT_VERSION} ${line}
+`);
+  } catch {
+  }
+}
+process.on("uncaughtException", (e) => {
+  void eventLog("uncaughtException: " + (e?.stack ?? e));
+  setTimeout(() => process.exit(1), 200);
+});
+process.on("unhandledRejection", (e) => {
+  void eventLog("unhandledRejection: " + (e?.stack ?? e));
+});
+process.on("exit", (code) => {
+  try {
+    __require("node:fs").appendFileSync(__require("node:path").join(CONFIG_DIR, "agent-events.log"), `[${(/* @__PURE__ */ new Date()).toISOString()}] pid=${process.pid} exit code=${code}
+`);
+  } catch {
+  }
+});
 var program2 = new Command();
 program2.name("everygithub").description("everygithub_gold \uC5D0\uC774\uC804\uD2B8").version(AGENT_VERSION);
 function localJob(url, pipeline, deviceId) {
@@ -26839,6 +26888,7 @@ program2.command("config").description("\uD604\uC7AC \uC0C1\uD0DC").action(async
   console.log(cfg ? { ...cfg, deviceToken: cfg.deviceToken ? "***" : void 0 } : "\uC5F0\uACB0 \uC548 \uB428 \u2014 \uC0AC\uC774\uD2B8\uC5D0\uC11C \uC124\uCE58 \uD30C\uC77C\uC744 \uBC1B\uC544 \uC2E4\uD589\uD558\uC138\uC694.");
 });
 program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\uC11C \uC7A1\uC744 \uBC1B\uC544 \uC2E4\uD589 (\uBC31\uADF8\uB77C\uC6B4\uB4DC \uB370\uBAAC)").action(async () => {
+  await eventLog(`start invoked argv=${JSON.stringify(process.argv.slice(1))} cwd=${process.cwd()} node=${process.version}`);
   const cfg = await loadConfig();
   if (!cfg?.hubUrl || !cfg.deviceToken) {
     console.log(import_picocolors3.default.yellow("\uC0AC\uC774\uD2B8\uC640 \uC5F0\uACB0\uB3FC \uC788\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4. \uC0AC\uC774\uD2B8 \uB300\uC2DC\uBCF4\uB4DC\uC5D0\uC11C [PC \uC5F0\uACB0 \uD30C\uC77C \uBC1B\uAE30] \uB97C \uC2E4\uD589\uD558\uC138\uC694."));
@@ -26861,6 +26911,7 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
   }
   await fs7.mkdir(CONFIG_DIR, { recursive: true });
   await fs7.writeFile(PID_PATH, String(process.pid));
+  await eventLog("pid written, checking update");
   const selfPath = process.argv[1];
   if (await selfUpdate(cfg.hubUrl, selfPath)) return;
   setInterval(async () => {
@@ -26880,6 +26931,7 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
     }
   };
   await refreshSettings();
+  await eventLog(`polling started workspace=${settings.workspacePath}`);
   console.log(import_picocolors3.default.bold(`everygithub agent v${AGENT_VERSION}`), import_picocolors3.default.dim(`\uD5C8\uBE0C ${cfg.hubUrl} \xB7 \uD3F4\uB354 ${settings.workspacePath}`));
   console.log(import_picocolors3.default.dim("\uC7A1 \uB300\uAE30 \uC911\u2026"));
   let failures = 0, ticks = 0;
@@ -26897,6 +26949,7 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
       const msg = err.message;
       if (msg.includes("\u2192 401")) {
         console.log(import_picocolors3.default.yellow("\uC774 PC \uC758 \uC5F0\uACB0\uC774 \uD574\uC81C\uB418\uC5C8\uAC70\uB098 \uC0C8 \uC5F0\uACB0\uB85C \uB300\uCCB4\uB418\uC5C8\uC2B5\uB2C8\uB2E4. \uC885\uB8CC\uD569\uB2C8\uB2E4."));
+        await eventLog("401 from hub \u2192 exiting");
         process.exit(0);
       }
       failures++;

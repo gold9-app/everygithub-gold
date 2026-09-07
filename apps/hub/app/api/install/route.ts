@@ -65,7 +65,8 @@ export async function GET() {
     // 로그 파일이 아직 잠겨 있으면(좀비 프로세스) 다른 이름으로 — 잠긴 파일로 리다이렉트하면 명령 자체가 실행되지 않음
     'set "AGENTLOG=%DIR%\\agent.log"',
     'if exist "%DIR%\\agent.log" set "AGENTLOG=%DIR%\\agent-%RANDOM%.log"',
-    'start "" /min cmd /c "node "%DIR%\\cli.mjs" start > "%AGENTLOG%" 2>&1"',
+    // 창 제목이 비어 있으면 Node 가 "Assertion failed: process_title" 로 죽는다 → 반드시 제목 지정
+    'start "everygithub agent" /min cmd /c "title everygithub agent && node "%DIR%\\cli.mjs" start > "%AGENTLOG%" 2>&1"',
     "timeout /t 3 >nul",
     'if exist "%USERPROFILE%\\.everygithub\\agent.pid" (echo  Agent is running.) else (echo  WARNING: agent did not start. See %USERPROFILE%\\.everygithub\\agent-events.log)',
     "echo.",

@@ -20,7 +20,10 @@ export async function selfUpdate(hubUrl: string, selfPath: string): Promise<bool
     await fs.writeFile(tmp, body);
     await fs.rename(tmp, selfPath);
     // 새 코드로 재시작 (분리된 프로세스) 후 현재 프로세스 종료
-    const child = spawn(process.execPath, [selfPath, "start"], { detached: true, stdio: "ignore", windowsHide: true });
+    // Windows: 제목 있는 콘솔로 띄워야 함 (빈 제목 → process_title assertion 크래시)
+    const child = process.platform === "win32"
+      ? spawn("cmd", ["/c", "start", "everygithub agent", "/min", "cmd", "/c", `title everygithub agent && "${process.execPath}" "${selfPath}" start`], { detached: true, stdio: "ignore", windowsHide: true })
+      : spawn(process.execPath, [selfPath, "start"], { detached: true, stdio: "ignore" });
     child.unref();
     console.log(pc.green("✔ 업데이트 완료 — 재시작"));
     return true;
