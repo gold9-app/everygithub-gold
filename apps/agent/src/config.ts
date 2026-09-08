@@ -15,7 +15,7 @@ export const CONFIG_DIR = path.join(os.homedir(), ".everygithub");
 export const CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
 export const PID_PATH = path.join(CONFIG_DIR, "agent.pid");
 export const EVENTS_PATH = path.join(CONFIG_DIR, "agent-events.log");
-export const AGENT_VERSION = "0.3.0";
+export const AGENT_VERSION = "0.4.0";
 
 export async function loadConfig(): Promise<AgentConfig | null> {
   try { return JSON.parse(await fs.readFile(CONFIG_PATH, "utf8")); } catch { return null; }

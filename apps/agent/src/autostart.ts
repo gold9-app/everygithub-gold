@@ -18,6 +18,13 @@ export async function registerAutostart(cliPath: string): Promise<string | null>
   ].join("\r\n");
   const target = path.join(startup, "everygithub.vbs");
   await fs.writeFile(target, vbs, "utf8");
+  // 감시 작업: 로그인 시 + 5분마다 실행. 이미 돌고 있으면 start 가 바로 종료하므로 중복 없음
+  try {
+    const { execa } = await import("execa");
+    const tr = `wscript.exe "${target}"`;
+    await execa("schtasks", ["/Create", "/F", "/TN", "everygithub agent", "/SC", "MINUTE", "/MO", "5", "/TR", tr, "/RL", "LIMITED"], { windowsHide: true, reject: false });
+    await execa("schtasks", ["/Create", "/F", "/TN", "everygithub agent (logon)", "/SC", "ONLOGON", "/TR", tr, "/RL", "LIMITED"], { windowsHide: true, reject: false });
+  } catch {}
   return target;
 }
 
@@ -25,4 +32,9 @@ export async function removeAutostart() {
   if (process.platform !== "win32") return;
   const target = path.join(os.homedir(), "AppData", "Roaming", "Microsoft", "Windows", "Start Menu", "Programs", "Startup", "everygithub.vbs");
   await fs.rm(target, { force: true });
+  try {
+    const { execa } = await import("execa");
+    await execa("schtasks", ["/Delete", "/F", "/TN", "everygithub agent"], { windowsHide: true, reject: false });
+    await execa("schtasks", ["/Delete", "/F", "/TN", "everygithub agent (logon)"], { windowsHide: true, reject: false });
+  } catch {}
 }

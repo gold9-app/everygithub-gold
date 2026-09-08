@@ -19,6 +19,8 @@ export async function selfUpdate(hubUrl: string, selfPath: string): Promise<bool
     const tmp = selfPath + ".new";
     await fs.writeFile(tmp, body);
     await fs.rename(tmp, selfPath);
+    // 새 프로세스가 "이미 실행 중"으로 오인하지 않도록 pid 파일 제거
+    try { const { PID_PATH } = await import("./config"); await fs.rm(PID_PATH, { force: true }); } catch {}
     // 새 코드로 재시작 (분리된 프로세스) 후 현재 프로세스 종료
     // Windows: 제목 있는 콘솔로 띄워야 함 (빈 제목 → process_title assertion 크래시)
     const child = process.platform === "win32"

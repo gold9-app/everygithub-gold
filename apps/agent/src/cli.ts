@@ -80,15 +80,20 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
     return;
   }
   try { process.chdir(os.homedir()); } catch {} // 설치 파일이 Downloads 에서 띄워도 홈 기준으로
-  // 이전 인스턴스가 있으면 종료 (설치 파일 재실행·자동 업데이트 시 중복 방지)
+  // 단일 인스턴스: 이미 살아 있는 에이전트가 있으면 조용히 종료 (감시 작업이 5분마다 호출해도 중복 없음)
   try {
     const old = Number((await fs.readFile(PID_PATH, "utf8")).trim());
-    if (old && old !== process.pid) { try { process.kill(old); } catch {} }
+    if (old && old !== process.pid) {
+      let alive = false;
+      try { process.kill(old, 0); alive = true; } catch {}
+      if (alive) { await eventLog(`already running pid=${old} → exit`); return; }
+    }
   } catch {}
   await fs.mkdir(CONFIG_DIR, { recursive: true });
   await fs.writeFile(PID_PATH, String(process.pid));
   await eventLog("pid written, checking update");
   const selfPath = process.argv[1];
+  registerAutostart(selfPath).catch(() => {}); // 감시 작업(스케줄러)이 없으면 등록 — 자동 업데이트로 올라온 버전도 보호
   if (await selfUpdate(cfg.hubUrl, selfPath)) return; // 새 프로세스가 이어받음
   setInterval(async () => { if (await selfUpdate(cfg.hubUrl!, selfPath)) process.exit(0); }, 60 * 60 * 1000);
 
