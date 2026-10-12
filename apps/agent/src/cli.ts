@@ -8,7 +8,8 @@ import { AGENT_VERSION, CONFIG_PATH, PID_PATH, CONFIG_DIR, currentOS, loadConfig
 import { HubClient } from "./hub-client";
 import { executeJob } from "./runner";
 import { registerAutostart, removeAutostart } from "./autostart";
-import { selfUpdate } from "./self-update";
+import { selfUpdate, localSha } from "./self-update";
+import { WakeListener } from "./realtime";
 
 /** 시작·종료·치명 오류를 별도 파일에 남긴다 (stdout 로그가 다른 프로세스에 덮여도 원인 추적 가능) */
 async function eventLog(line: string) {
@@ -94,11 +95,18 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
   await eventLog("pid written, checking update");
   const selfPath = process.argv[1];
   registerAutostart(selfPath).catch(() => {}); // 감시 작업(스케줄러)이 없으면 등록 — 자동 업데이트로 올라온 버전도 보호
-  if (await selfUpdate(cfg.hubUrl, selfPath)) return; // 새 프로세스가 이어받음
-  setInterval(async () => { if (await selfUpdate(cfg.hubUrl!, selfPath)) process.exit(0); }, 60 * 60 * 1000);
+  if (await selfUpdate(cfg.hubUrl, selfPath)) return; // 새 프로세스가 이어받음 (시작 시 1회; 이후엔 응답 헤더로 감지)
+
+  // ── 깨우기 신호: 사이트가 잡 생성/설정 저장 시 보냄. 폴링은 신호 누락 대비 + 온라인 표시용 보험 ──
+  let wantJob = false, wantSettings = false, updateTo: string | null = null;
+  let wake: (() => void) | null = null;
+  const sleep = (ms: number) => new Promise<void>((r) => { const t = setTimeout(() => { wake = null; r(); }, ms); wake = () => { clearTimeout(t); wake = null; r(); }; });
+  const listener = new WakeListener((e) => { if (e === "job") wantJob = true; else wantSettings = true; wake?.(); }, (l) => void eventLog(l));
 
   const hub = new HubClient(cfg.hubUrl, cfg.deviceToken);
-  let settings: AgentSettings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 5000 };
+  const mySha = await localSha(selfPath);
+  hub.onRemoteSha = (sha) => { if (sha !== mySha && !updateTo) { updateTo = sha; wake?.(); } };
+  let settings: AgentSettings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 60_000 };
   const refreshSettings = async () => {
     try {
       const s = await hub.settings();
@@ -106,23 +114,23 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
       await fs.mkdir(settings.workspacePath, { recursive: true });
       // "~/..." 같은 약어 경로는 실제 경로로 바꿔 사이트에 그대로 보이게
       if (s.workspacePath !== settings.workspacePath) await hub.updateDevice({ workspacePath: settings.workspacePath }).catch(() => {});
+      if (s.realtime) listener.connect(s.realtime);
     } catch (err) { console.error(pc.red("설정 불러오기 실패:"), (err as Error).message); }
   };
   await refreshSettings();
-  await eventLog(`polling started workspace=${settings.workspacePath}`);
+  if (!listener.available) await eventLog("WebSocket 미지원 Node → 20초 폴링으로 동작");
+  await eventLog(`started workspace=${settings.workspacePath} realtime=${listener.available ? "on" : "off"}`);
   console.log(pc.bold(`everygithub agent v${AGENT_VERSION}`), pc.dim(`허브 ${cfg.hubUrl} · 폴더 ${settings.workspacePath}`));
-  console.log(pc.dim("잡 대기 중…"));
-  // 적응형 폴링: 잡을 처리한 직후 1분은 빠르게(기본 간격), 그 뒤로는 점점 느리게(최대 IDLE_MAX).
-  // 허브 호출 수를 1/5 이하로 줄여 무료 호스팅 한도를 지킨다. 온라인 판정(90초)보다는 항상 짧다.
-  const IDLE_MAX = 20_000;
-  let failures = 0, lastActive = Date.now(), lastSettings = Date.now(), idleDelay = settings.pollIntervalMs;
+  console.log(pc.dim(listener.available ? "잡 대기 중 (실시간)…" : "잡 대기 중 (폴링)…"));
+  let failures = 0, lastActive = Date.now();
   for (;;) {
     try {
-      if (Date.now() - lastSettings > 5 * 60_000) { await refreshSettings(); lastSettings = Date.now(); } // 5분마다 사이트 설정 반영
+      if (updateTo) { if (await selfUpdate(cfg.hubUrl, selfPath, updateTo)) process.exit(0); updateTo = null; } // 잡 사이(유휴)에만 교체
+      if (wantSettings) { wantSettings = false; await refreshSettings(); }
+      wantJob = false;
       const job = await hub.nextJob();
       failures = 0;
-      if (job) { await refreshSettings(); lastSettings = Date.now(); await executeJob(job, settings, hub); lastActive = Date.now(); idleDelay = settings.pollIntervalMs; continue; }
-      if (Date.now() - lastActive > 60_000) idleDelay = Math.min(Math.round(idleDelay * 1.5), IDLE_MAX);
+      if (job) { await refreshSettings(); await executeJob(job, settings, hub); lastActive = Date.now(); continue; }
     } catch (err) {
       const msg = (err as Error).message;
       if (msg.includes("→ 401")) {
@@ -134,8 +142,10 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
       failures++;
       if (failures === 1 || failures % 20 === 0) console.error(pc.red("허브 연결 오류:"), msg);
     }
-    const delay = failures ? Math.min(settings.pollIntervalMs * (failures + 1), 30000) : idleDelay;
-    await new Promise((r) => setTimeout(r, delay));
+    if (wantJob || wantSettings || updateTo) continue; // 기다리는 동안 신호가 왔으면 바로
+    // 실시간 연결이 살아 있으면 60초 보험 폴링, 아니면 20초. 처리 직후 1분은 5초(연속 잡 대비). 오류 시 점증 대기
+    const base = Date.now() - lastActive < 60_000 ? 5_000 : listener.connected ? settings.pollIntervalMs : 20_000;
+    await sleep(failures ? Math.min(5_000 * (failures + 1), 60_000) : base);
   }
 });
 

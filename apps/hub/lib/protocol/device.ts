@@ -34,6 +34,9 @@ export const AgentSettings = z.object({
   workspacePath: z.string(),
   anthropicApiKey: z.string().optional(),
   approve: z.enum(["auto", "ask"]).default("ask"),
-  pollIntervalMs: z.number().default(5000),
+  /** 보험용 폴링 간격 (실시간 신호가 주 통로, 폴링은 온라인 표시 겸 누락 대비) */
+  pollIntervalMs: z.number().default(60000),
+  /** 사이트 → PC 깨우기 통로 (Supabase Realtime 브로드캐스트). 공개 값만 포함 */
+  realtime: z.object({ url: z.string(), anonKey: z.string(), topic: z.string() }).optional(),
 });
 export type AgentSettings = z.infer<typeof AgentSettings>;

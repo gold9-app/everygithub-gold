@@ -3152,7 +3152,7 @@ var init_config = __esm({
     CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
     PID_PATH = path.join(CONFIG_DIR, "agent.pid");
     EVENTS_PATH = path.join(CONFIG_DIR, "agent-events.log");
-    AGENT_VERSION = "0.4.1";
+    AGENT_VERSION = "0.5.0";
   }
 });
 
@@ -22173,7 +22173,10 @@ var AgentSettings = external_exports.object({
   workspacePath: external_exports.string(),
   anthropicApiKey: external_exports.string().optional(),
   approve: external_exports.enum(["auto", "ask"]).default("ask"),
-  pollIntervalMs: external_exports.number().default(5e3)
+  /** 보험용 폴링 간격 (실시간 신호가 주 통로, 폴링은 온라인 표시 겸 누락 대비) */
+  pollIntervalMs: external_exports.number().default(6e4),
+  /** 사이트 → PC 깨우기 통로 (Supabase Realtime 브로드캐스트). 공개 값만 포함 */
+  realtime: external_exports.object({ url: external_exports.string(), anonKey: external_exports.string(), topic: external_exports.string() }).optional()
 });
 
 // apps/agent/src/cli.ts
@@ -22185,6 +22188,8 @@ var HubClient = class {
     this.hubUrl = hubUrl;
     this.token = token;
   }
+  /** 허브 응답 헤더(x-agent-sha)로 전달되는 현재 배포 번들 해시 — 업데이트 확인용 (별도 요청 없음) */
+  onRemoteSha;
   async req(method, p2, body) {
     const res = await fetch(new URL(p2, this.hubUrl), {
       method,
@@ -22194,6 +22199,8 @@ var HubClient = class {
       },
       body: body ? JSON.stringify(body) : void 0
     });
+    const sha = res.headers.get("x-agent-sha");
+    if (sha && this.onRemoteSha) this.onRemoteSha(sha);
     if (!res.ok) throw new Error(`${method} ${p2} \u2192 ${res.status} ${await res.text()}`);
     return await res.json();
   }
@@ -28270,11 +28277,14 @@ var import_picocolors2 = __toESM(require_picocolors(), 1);
 import { createHash } from "node:crypto";
 import { promises as fs10 } from "node:fs";
 import { spawn as spawn3 } from "node:child_process";
-async function selfUpdate(hubUrl, selfPath) {
+async function localSha(selfPath) {
+  return createHash("sha256").update(await fs10.readFile(selfPath)).digest("hex");
+}
+async function selfUpdate(hubUrl, selfPath, remoteSha) {
   try {
-    const remote = (await (await fetch(`${hubUrl}/agent/cli.mjs.sha256`, { cache: "no-store" })).text()).trim().slice(0, 64);
+    const remote = remoteSha ?? (await (await fetch(`${hubUrl}/agent/cli.mjs.sha256`, { cache: "no-store" })).text()).trim().slice(0, 64);
     if (!/^[0-9a-f]{64}$/.test(remote)) return false;
-    const local = createHash("sha256").update(await fs10.readFile(selfPath)).digest("hex");
+    const local = await localSha(selfPath);
     if (local === remote) return false;
     console.log(import_picocolors2.default.cyan("\uC0C8 \uBC84\uC804 \uBC1C\uACAC \u2192 \uC5C5\uB370\uC774\uD2B8 \uC911"));
     const body = Buffer.from(await (await fetch(`${hubUrl}/agent/cli.mjs`, { cache: "no-store" })).arrayBuffer());
@@ -28299,6 +28309,115 @@ async function selfUpdate(hubUrl, selfPath) {
     return false;
   }
 }
+
+// apps/agent/src/realtime.ts
+var WakeListener = class {
+  constructor(onEvent, log2 = () => {
+  }) {
+    this.onEvent = onEvent;
+    this.log = log2;
+  }
+  ws = null;
+  cfg = null;
+  hb = null;
+  retry = null;
+  backoff = 1e3;
+  ref = 0;
+  connected = false;
+  get available() {
+    return typeof globalThis.WebSocket === "function";
+  }
+  /** 설정이 바뀌면 다시 호출 — 같은 토픽이면 아무 일도 안 함 */
+  connect(cfg) {
+    if (!this.available) return;
+    if (this.cfg && this.cfg.url === cfg.url && this.cfg.topic === cfg.topic && (this.ws || this.retry)) return;
+    this.cfg = cfg;
+    this.close();
+    this.open();
+  }
+  close() {
+    if (this.hb) clearInterval(this.hb);
+    this.hb = null;
+    if (this.retry) clearTimeout(this.retry);
+    this.retry = null;
+    const ws = this.ws;
+    this.ws = null;
+    this.connected = false;
+    try {
+      ws?.close();
+    } catch {
+    }
+  }
+  open() {
+    if (!this.cfg) return;
+    const { url, anonKey, topic } = this.cfg;
+    const wsUrl = `${url.replace(/^http/, "ws").replace(/\/$/, "")}/realtime/v1/websocket?apikey=${encodeURIComponent(anonKey)}&vsn=1.0.0`;
+    let ws;
+    try {
+      ws = new globalThis.WebSocket(wsUrl);
+    } catch (e) {
+      this.scheduleRetry();
+      return;
+    }
+    this.ws = ws;
+    const send = (msg) => {
+      try {
+        ws.send(JSON.stringify(msg));
+      } catch {
+      }
+    };
+    ws.onopen = () => {
+      send({
+        topic: `realtime:${topic}`,
+        event: "phx_join",
+        ref: String(++this.ref),
+        payload: { config: { broadcast: { self: false, ack: false }, presence: { key: "" }, postgres_changes: [], private: false }, access_token: anonKey }
+      });
+      this.hb = setInterval(() => send({ topic: "phoenix", event: "heartbeat", payload: {}, ref: String(++this.ref) }), 25e3);
+    };
+    ws.onmessage = (ev) => {
+      let m;
+      try {
+        m = JSON.parse(String(ev.data));
+      } catch {
+        return;
+      }
+      if (m.event === "phx_reply" && m.payload?.status === "ok" && !this.connected) {
+        this.connected = true;
+        this.backoff = 1e3;
+        this.log("realtime connected");
+      }
+      if (m.event === "phx_reply" && m.payload?.status === "error") {
+        this.log("realtime join error: " + JSON.stringify(m.payload));
+      }
+      if (m.event === "broadcast") {
+        const e = m.payload?.event;
+        if (e === "job" || e === "settings") this.onEvent(e);
+      }
+    };
+    ws.onclose = () => {
+      if (this.ws === ws) {
+        this.connected = false;
+        this.ws = null;
+        if (this.hb) clearInterval(this.hb);
+        this.hb = null;
+        this.scheduleRetry();
+      }
+    };
+    ws.onerror = () => {
+    };
+  }
+  scheduleRetry() {
+    if (this.retry) return;
+    const wait = this.backoff;
+    this.backoff = Math.min(this.backoff * 2, 6e4);
+    this.log(`realtime disconnected \u2192 retry in ${wait}ms`);
+    this.retry = setTimeout(() => {
+      this.retry = null;
+      this.open();
+    }, wait);
+  }
+};
 
 // apps/agent/src/cli.ts
 async function eventLog(line) {
@@ -28401,11 +28520,33 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
   registerAutostart(selfPath).catch(() => {
   });
   if (await selfUpdate(cfg.hubUrl, selfPath)) return;
-  setInterval(async () => {
-    if (await selfUpdate(cfg.hubUrl, selfPath)) process.exit(0);
-  }, 60 * 60 * 1e3);
+  let wantJob = false, wantSettings = false, updateTo = null;
+  let wake = null;
+  const sleep = (ms) => new Promise((r2) => {
+    const t2 = setTimeout(() => {
+      wake = null;
+      r2();
+    }, ms);
+    wake = () => {
+      clearTimeout(t2);
+      wake = null;
+      r2();
+    };
+  });
+  const listener = new WakeListener((e) => {
+    if (e === "job") wantJob = true;
+    else wantSettings = true;
+    wake?.();
+  }, (l) => void eventLog(l));
   const hub = new HubClient(cfg.hubUrl, cfg.deviceToken);
-  let settings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 5e3 };
+  const mySha = await localSha(selfPath);
+  hub.onRemoteSha = (sha) => {
+    if (sha !== mySha && !updateTo) {
+      updateTo = sha;
+      wake?.();
+    }
+  };
+  let settings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 6e4 };
   const refreshSettings = async () => {
     try {
       const s = await hub.settings();
@@ -28413,33 +28554,36 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
       await fs11.mkdir(settings.workspacePath, { recursive: true });
       if (s.workspacePath !== settings.workspacePath) await hub.updateDevice({ workspacePath: settings.workspacePath }).catch(() => {
       });
+      if (s.realtime) listener.connect(s.realtime);
     } catch (err) {
       console.error(import_picocolors3.default.red("\uC124\uC815 \uBD88\uB7EC\uC624\uAE30 \uC2E4\uD328:"), err.message);
     }
   };
   await refreshSettings();
-  await eventLog(`polling started workspace=${settings.workspacePath}`);
+  if (!listener.available) await eventLog("WebSocket \uBBF8\uC9C0\uC6D0 Node \u2192 20\uCD08 \uD3F4\uB9C1\uC73C\uB85C \uB3D9\uC791");
+  await eventLog(`started workspace=${settings.workspacePath} realtime=${listener.available ? "on" : "off"}`);
   console.log(import_picocolors3.default.bold(`everygithub agent v${AGENT_VERSION}`), import_picocolors3.default.dim(`\uD5C8\uBE0C ${cfg.hubUrl} \xB7 \uD3F4\uB354 ${settings.workspacePath}`));
-  console.log(import_picocolors3.default.dim("\uC7A1 \uB300\uAE30 \uC911\u2026"));
-  const IDLE_MAX = 2e4;
-  let failures = 0, lastActive = Date.now(), lastSettings = Date.now(), idleDelay = settings.pollIntervalMs;
+  console.log(import_picocolors3.default.dim(listener.available ? "\uC7A1 \uB300\uAE30 \uC911 (\uC2E4\uC2DC\uAC04)\u2026" : "\uC7A1 \uB300\uAE30 \uC911 (\uD3F4\uB9C1)\u2026"));
+  let failures = 0, lastActive = Date.now();
   for (; ; ) {
     try {
-      if (Date.now() - lastSettings > 5 * 6e4) {
-        await refreshSettings();
-        lastSettings = Date.now();
+      if (updateTo) {
+        if (await selfUpdate(cfg.hubUrl, selfPath, updateTo)) process.exit(0);
+        updateTo = null;
       }
+      if (wantSettings) {
+        wantSettings = false;
+        await refreshSettings();
+      }
+      wantJob = false;
       const job = await hub.nextJob();
       failures = 0;
       if (job) {
         await refreshSettings();
-        lastSettings = Date.now();
         await executeJob(job, settings, hub);
         lastActive = Date.now();
-        idleDelay = settings.pollIntervalMs;
         continue;
       }
-      if (Date.now() - lastActive > 6e4) idleDelay = Math.min(Math.round(idleDelay * 1.5), IDLE_MAX);
     } catch (err) {
       const msg = err.message;
       if (msg.includes("\u2192 401")) {
@@ -28450,8 +28594,9 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
       failures++;
       if (failures === 1 || failures % 20 === 0) console.error(import_picocolors3.default.red("\uD5C8\uBE0C \uC5F0\uACB0 \uC624\uB958:"), msg);
     }
-    const delay2 = failures ? Math.min(settings.pollIntervalMs * (failures + 1), 3e4) : idleDelay;
-    await new Promise((r2) => setTimeout(r2, delay2));
+    if (wantJob || wantSettings || updateTo) continue;
+    const base = Date.now() - lastActive < 6e4 ? 5e3 : listener.connected ? settings.pollIntervalMs : 2e4;
+    await sleep(failures ? Math.min(5e3 * (failures + 1), 6e4) : base);
   }
 });
 program2.parseAsync(process.argv).catch((err) => {

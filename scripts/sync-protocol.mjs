@@ -11,6 +11,9 @@ if (existsSync("apps/agent/dist/cli.mjs")) {
   copyFileSync("apps/agent/dist/cli.mjs", "apps/hub/public/agent/cli.mjs");
   const { createHash } = await import("node:crypto");
   const { readFileSync, writeFileSync } = await import("node:fs");
-  writeFileSync("apps/hub/public/agent/cli.mjs.sha256", createHash("sha256").update(readFileSync("apps/agent/dist/cli.mjs")).digest("hex") + "\n");
+  const sha = createHash("sha256").update(readFileSync("apps/agent/dist/cli.mjs")).digest("hex");
+  writeFileSync("apps/hub/public/agent/cli.mjs.sha256", sha + "\n");
+  // 허브가 에이전트 응답 헤더(x-agent-sha)에 실어 보내는 값 — 주기적 업데이트 확인 요청이 필요 없어진다
+  writeFileSync("apps/hub/lib/agent-bundle.ts", `// scripts/sync-protocol.mjs 가 생성. 직접 수정하지 말 것\nexport const AGENT_BUNDLE_SHA = "${sha}";\n`);
   console.log("synced apps/agent/dist/cli.mjs → apps/hub/public/agent/cli.mjs");
 }

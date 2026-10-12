@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authDevice } from "@/lib/agent-auth";
+import { authDevice, agentJson } from "@/lib/agent-auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { rowToJob } from "@/lib/jobs";
 
@@ -12,8 +12,8 @@ export async function GET(req: Request) {
   const sb = supabaseAdmin();
   const { data: candidate } = await sb.from("jobs").select("id").eq("device_id", device.id).eq("status", "queued")
     .order("created_at", { ascending: true }).limit(1).maybeSingle();
-  if (!candidate) return NextResponse.json({ job: null });
+  if (!candidate) return agentJson({ job: null });
   const { data: claimed } = await sb.from("jobs").update({ status: "running" })
     .eq("id", candidate.id).eq("status", "queued").select("*").maybeSingle();
-  return NextResponse.json({ job: claimed ? rowToJob(claimed) : null });
+  return agentJson({ job: claimed ? rowToJob(claimed) : null });
 }

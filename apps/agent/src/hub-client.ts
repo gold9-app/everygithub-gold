@@ -2,6 +2,8 @@ import type { AgentSettings, Job, JobEvent, PairRequest, PairResponse, StackInfo
 
 /** 허브 REST 클라이언트. 에이전트는 허브에 아웃바운드 요청만 한다. */
 export class HubClient {
+  /** 허브 응답 헤더(x-agent-sha)로 전달되는 현재 배포 번들 해시 — 업데이트 확인용 (별도 요청 없음) */
+  onRemoteSha?: (sha: string) => void;
   constructor(private hubUrl: string, private token?: string) {}
 
   private async req<T>(method: string, p: string, body?: unknown): Promise<T> {
@@ -13,6 +15,8 @@ export class HubClient {
       },
       body: body ? JSON.stringify(body) : undefined,
     });
+    const sha = res.headers.get("x-agent-sha");
+    if (sha && this.onRemoteSha) this.onRemoteSha(sha);
     if (!res.ok) throw new Error(`${method} ${p} → ${res.status} ${await res.text()}`);
     return (await res.json()) as T;
   }

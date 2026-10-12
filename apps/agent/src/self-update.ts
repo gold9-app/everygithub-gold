@@ -5,13 +5,18 @@ import pc from "picocolors";
 
 /**
  * 자동 업데이트: 허브의 /agent/cli.mjs.sha256 과 내 파일 해시를 비교해 다르면 내려받고 스스로 재시작.
- * 사이트가 재배포되면 에이전트는 다음 확인 때(시작 시 + 1시간마다) 알아서 최신이 된다.
+ * 시작 시 한 번 확인하고, 이후에는 허브 응답 헤더(x-agent-sha)가 바뀌면 즉시 — 주기적 확인 요청은 없다.
  */
-export async function selfUpdate(hubUrl: string, selfPath: string): Promise<boolean> {
+export async function localSha(selfPath: string) {
+  return createHash("sha256").update(await fs.readFile(selfPath)).digest("hex");
+}
+
+/** remoteSha 를 알고 있으면(허브 응답 헤더) sha256 파일 요청을 생략한다 */
+export async function selfUpdate(hubUrl: string, selfPath: string, remoteSha?: string): Promise<boolean> {
   try {
-    const remote = (await (await fetch(`${hubUrl}/agent/cli.mjs.sha256`, { cache: "no-store" })).text()).trim().slice(0, 64);
+    const remote = remoteSha ?? (await (await fetch(`${hubUrl}/agent/cli.mjs.sha256`, { cache: "no-store" })).text()).trim().slice(0, 64);
     if (!/^[0-9a-f]{64}$/.test(remote)) return false;
-    const local = createHash("sha256").update(await fs.readFile(selfPath)).digest("hex");
+    const local = await localSha(selfPath);
     if (local === remote) return false;
     console.log(pc.cyan("새 버전 발견 → 업데이트 중"));
     const body = Buffer.from(await (await fetch(`${hubUrl}/agent/cli.mjs`, { cache: "no-store" })).arrayBuffer());

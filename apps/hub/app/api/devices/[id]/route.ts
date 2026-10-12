@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { currentUser, supabaseServer } from "@/lib/supabase";
+import { wakeDevices } from "@/lib/realtime";
 
 const Body = z.object({ workspacePath: z.string().min(1).optional(), name: z.string().min(1).optional() });
 
-/** 디바이스 설정 변경 (워크스페이스 경로 등) — 다음 폴링 때 에이전트에 반영 */
+/** 디바이스 설정 변경 (워크스페이스 경로 등) — 저장 즉시 PC 에 신호를 보내 반영 */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
@@ -17,6 +18,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (body.data.name) patch.name = body.data.name;
   const { error } = await sb.from("devices").update(patch).eq("id", id).eq("user_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  await wakeDevices([id], "settings");
   return NextResponse.json({ ok: true });
 }
 

@@ -1,5 +1,6 @@
 import { CreateJobInput, PIPELINE_STEPS, parseGithubUrl, type JobOrigin, type Pipeline } from "@everygithub/protocol";
 import { supabaseAdmin } from "./supabase";
+import { wakeDevices } from "./realtime";
 
 /** 어떤 채널에서 오든 잡 생성은 여기 한 곳. deviceId 없으면 사용자의 최근 접속 디바이스 */
 export async function createJob(userId: string, input: { url: string; pipeline?: Pipeline; steps?: any[]; origin: JobOrigin; deviceId?: string; options?: Record<string, unknown> }) {
@@ -21,6 +22,7 @@ export async function createJob(userId: string, input: { url: string; pipeline?:
     origin: parsed.origin,
   }).select("*").single();
   if (error) throw error;
+  await wakeDevices([deviceId!], "job"); // PC 즉시 깨우기 (실패해도 폴링이 받음)
   return data;
 }
 

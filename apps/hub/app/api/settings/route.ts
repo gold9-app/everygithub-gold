@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { currentUser, supabaseAdmin } from "@/lib/supabase";
+import { wakeUserDevices } from "@/lib/realtime";
 
 const Body = z.object({
   anthropicApiKey: z.string().optional(),
@@ -22,5 +23,6 @@ export async function POST(req: Request) {
     if (v === "") delete merged[k]; else merged[k] = v;
   }
   await sb.from("profiles").update({ settings: merged }).eq("id", user.id);
+  await wakeUserDevices(user.id, "settings"); // PC 가 바로 새 설정을 받아가게
   return NextResponse.json({ ok: true });
 }
