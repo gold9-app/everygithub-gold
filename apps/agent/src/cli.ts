@@ -98,7 +98,7 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
   setInterval(async () => { if (await selfUpdate(cfg.hubUrl!, selfPath)) process.exit(0); }, 60 * 60 * 1000);
 
   const hub = new HubClient(cfg.hubUrl, cfg.deviceToken);
-  let settings: AgentSettings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 3000 };
+  let settings: AgentSettings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 5000 };
   const refreshSettings = async () => {
     try {
       const s = await hub.settings();
@@ -112,13 +112,17 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
   await eventLog(`polling started workspace=${settings.workspacePath}`);
   console.log(pc.bold(`everygithub agent v${AGENT_VERSION}`), pc.dim(`허브 ${cfg.hubUrl} · 폴더 ${settings.workspacePath}`));
   console.log(pc.dim("잡 대기 중…"));
-  let failures = 0, ticks = 0;
+  // 적응형 폴링: 잡을 처리한 직후 1분은 빠르게(기본 간격), 그 뒤로는 점점 느리게(최대 IDLE_MAX).
+  // 허브 호출 수를 1/5 이하로 줄여 무료 호스팅 한도를 지킨다. 온라인 판정(90초)보다는 항상 짧다.
+  const IDLE_MAX = 20_000;
+  let failures = 0, lastActive = Date.now(), lastSettings = Date.now(), idleDelay = settings.pollIntervalMs;
   for (;;) {
     try {
-      if (++ticks % 20 === 0) await refreshSettings(); // 약 1분마다 사이트 설정 반영
+      if (Date.now() - lastSettings > 5 * 60_000) { await refreshSettings(); lastSettings = Date.now(); } // 5분마다 사이트 설정 반영
       const job = await hub.nextJob();
       failures = 0;
-      if (job) { await refreshSettings(); await executeJob(job, settings, hub); continue; }
+      if (job) { await refreshSettings(); lastSettings = Date.now(); await executeJob(job, settings, hub); lastActive = Date.now(); idleDelay = settings.pollIntervalMs; continue; }
+      if (Date.now() - lastActive > 60_000) idleDelay = Math.min(Math.round(idleDelay * 1.5), IDLE_MAX);
     } catch (err) {
       const msg = (err as Error).message;
       if (msg.includes("→ 401")) {
@@ -130,7 +134,8 @@ program.command("start", { isDefault: true }).description("허브에서 잡을 �
       failures++;
       if (failures === 1 || failures % 20 === 0) console.error(pc.red("허브 연결 오류:"), msg);
     }
-    await new Promise((r) => setTimeout(r, Math.min(settings.pollIntervalMs * (failures + 1), 30000)));
+    const delay = failures ? Math.min(settings.pollIntervalMs * (failures + 1), 30000) : idleDelay;
+    await new Promise((r) => setTimeout(r, delay));
   }
 });
 

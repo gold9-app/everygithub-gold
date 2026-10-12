@@ -71,16 +71,17 @@ export function CommandBar({ devices, hasAnyDevice }: { devices: { id: string; n
 
 type JobRow = { id: string; source: any; pipeline: string; status: string; origin: any; created_at: string; finished_at: string | null; repo_id: string | null; error?: string | null; skipped?: { step: string; reason: string }[] };
 
-/** 실시간 피드: 진행 중인 잡이 있으면 2초, 아니면 8초 간격 갱신 */
+/** 실시간 피드: 진행 중인 잡이 있으면 3초, 아니면 30초 간격 갱신 (탭이 보일 때만) */
 export function LiveFeed({ initial }: { initial: JobRow[] }) {
   const [jobs, setJobs] = useState(initial);
   useEffect(() => {
     let alive = true;
     const tick = async () => {
+      if (document.visibilityState === "hidden") return;
       try { const r = await fetch("/api/jobs?limit=12"); if (r.ok && alive) setJobs((await r.json()).jobs); } catch {}
     };
     const active = jobs.some((j) => j.status === "queued" || j.status === "running");
-    const t = setInterval(tick, active ? 2000 : 8000);
+    const t = setInterval(tick, active ? 3000 : 30000);
     const onCreated = () => tick();
     window.addEventListener("eg:job-created", onCreated);
     return () => { alive = false; clearInterval(t); window.removeEventListener("eg:job-created", onCreated); };

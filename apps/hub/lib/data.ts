@@ -1,6 +1,6 @@
 import { supabaseServer } from "./supabase";
 
-export const ONLINE_MS = 60_000;
+export const ONLINE_MS = 90_000; // 에이전트 유휴 폴링 최대 20초 + 여유
 export const isOnline = (t: string | null) => Boolean(t && Date.now() - new Date(t).getTime() < ONLINE_MS);
 
 /** 셸 상태: 디바이스 온라인 여부 + 텔레그램 연결 */

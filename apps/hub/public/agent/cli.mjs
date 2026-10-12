@@ -3152,7 +3152,7 @@ var init_config = __esm({
     CONFIG_PATH = path.join(CONFIG_DIR, "config.json");
     PID_PATH = path.join(CONFIG_DIR, "agent.pid");
     EVENTS_PATH = path.join(CONFIG_DIR, "agent-events.log");
-    AGENT_VERSION = "0.4.0";
+    AGENT_VERSION = "0.4.1";
   }
 });
 
@@ -22173,7 +22173,7 @@ var AgentSettings = external_exports.object({
   workspacePath: external_exports.string(),
   anthropicApiKey: external_exports.string().optional(),
   approve: external_exports.enum(["auto", "ask"]).default("ask"),
-  pollIntervalMs: external_exports.number().default(3e3)
+  pollIntervalMs: external_exports.number().default(5e3)
 });
 
 // apps/agent/src/cli.ts
@@ -28405,7 +28405,7 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
     if (await selfUpdate(cfg.hubUrl, selfPath)) process.exit(0);
   }, 60 * 60 * 1e3);
   const hub = new HubClient(cfg.hubUrl, cfg.deviceToken);
-  let settings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 3e3 };
+  let settings = { workspacePath: defaultWorkspace(), approve: "ask", pollIntervalMs: 5e3 };
   const refreshSettings = async () => {
     try {
       const s = await hub.settings();
@@ -28421,17 +28421,25 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
   await eventLog(`polling started workspace=${settings.workspacePath}`);
   console.log(import_picocolors3.default.bold(`everygithub agent v${AGENT_VERSION}`), import_picocolors3.default.dim(`\uD5C8\uBE0C ${cfg.hubUrl} \xB7 \uD3F4\uB354 ${settings.workspacePath}`));
   console.log(import_picocolors3.default.dim("\uC7A1 \uB300\uAE30 \uC911\u2026"));
-  let failures = 0, ticks = 0;
+  const IDLE_MAX = 2e4;
+  let failures = 0, lastActive = Date.now(), lastSettings = Date.now(), idleDelay = settings.pollIntervalMs;
   for (; ; ) {
     try {
-      if (++ticks % 20 === 0) await refreshSettings();
+      if (Date.now() - lastSettings > 5 * 6e4) {
+        await refreshSettings();
+        lastSettings = Date.now();
+      }
       const job = await hub.nextJob();
       failures = 0;
       if (job) {
         await refreshSettings();
+        lastSettings = Date.now();
         await executeJob(job, settings, hub);
+        lastActive = Date.now();
+        idleDelay = settings.pollIntervalMs;
         continue;
       }
+      if (Date.now() - lastActive > 6e4) idleDelay = Math.min(Math.round(idleDelay * 1.5), IDLE_MAX);
     } catch (err) {
       const msg = err.message;
       if (msg.includes("\u2192 401")) {
@@ -28442,7 +28450,8 @@ program2.command("start", { isDefault: true }).description("\uD5C8\uBE0C\uC5D0\u
       failures++;
       if (failures === 1 || failures % 20 === 0) console.error(import_picocolors3.default.red("\uD5C8\uBE0C \uC5F0\uACB0 \uC624\uB958:"), msg);
     }
-    await new Promise((r2) => setTimeout(r2, Math.min(settings.pollIntervalMs * (failures + 1), 3e4)));
+    const delay2 = failures ? Math.min(settings.pollIntervalMs * (failures + 1), 3e4) : idleDelay;
+    await new Promise((r2) => setTimeout(r2, delay2));
   }
 });
 program2.parseAsync(process.argv).catch((err) => {

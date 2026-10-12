@@ -43,7 +43,7 @@ function PcTab({ devices }: { devices: Device[] }) {
       <div className="card">
         <div className="flex items-center justify-between p-4 border-b border-line">
           <div><div className="font-semibold">연결된 PC</div><div className="text-xs text-mute">에이전트가 설치된 컴퓨터. 링크는 이 PC 들 중 하나에서 실행됩니다.</div></div>
-          <InstallButton variant="ghost" label="다른 PC 연결" />
+          <InstallButton variant="ghost" label="에이전트 다시 설치 / 다른 PC 연결" />
         </div>
         {devices.length ? devices.map((d) => <DeviceRow key={d.id} d={d} onChange={() => router.refresh()} />) : <div className="p-6 text-sm text-mute">아직 연결된 PC 가 없습니다.</div>}
       </div>

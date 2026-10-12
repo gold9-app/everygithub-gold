@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ONLINE_MS } from "@/lib/data";
 import { z } from "zod";
 import { currentUser, supabaseAdmin } from "@/lib/supabase";
 
@@ -16,7 +17,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const sb = supabaseAdmin();
   const { data: device } = await sb.from("devices").select("id,last_seen").eq("id", id).eq("user_id", user.id).maybeSingle();
   if (!device) return NextResponse.json({ error: "not found" }, { status: 404 });
-  if (!device.last_seen || Date.now() - new Date(device.last_seen).getTime() > 60_000) return NextResponse.json({ error: "PC 가 오프라인입니다" }, { status: 409 });
+  if (!device.last_seen || Date.now() - new Date(device.last_seen).getTime() > ONLINE_MS) return NextResponse.json({ error: "PC 가 오프라인입니다" }, { status: 409 });
 
   const { data: job, error } = await sb.from("jobs").insert({
     user_id: user.id, device_id: id, source: { url: "https://github.com/everygithub/local", kind: "repo", owner: "everygithub", name: "local" },

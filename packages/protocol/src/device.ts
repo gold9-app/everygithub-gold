@@ -34,6 +34,6 @@ export const AgentSettings = z.object({
   workspacePath: z.string(),
   anthropicApiKey: z.string().optional(),
   approve: z.enum(["auto", "ask"]).default("ask"),
-  pollIntervalMs: z.number().default(3000),
+  pollIntervalMs: z.number().default(5000),
 });
 export type AgentSettings = z.infer<typeof AgentSettings>;

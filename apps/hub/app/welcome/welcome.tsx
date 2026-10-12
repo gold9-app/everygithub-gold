@@ -21,7 +21,7 @@ export function Welcome({ initial }: Props) {
   const [url, setUrl] = useState("https://github.com/sindresorhus/is-online");
   const [msg, setMsg] = useState("");
 
-  // PC 온라인/텔레그램 연결을 3초마다 확인
+  // PC 온라인/텔레그램 연결을 5초마다 확인
   useEffect(() => {
     const t = setInterval(async () => {
       try {
@@ -33,7 +33,7 @@ export function Welcome({ initial }: Props) {
         setOnline(on); setTelegram(s.telegram);
         if (on && step === 1) setStep(2);
       } catch {}
-    }, 3000);
+    }, 5000);
     return () => clearInterval(t);
   }, [step]);
 
