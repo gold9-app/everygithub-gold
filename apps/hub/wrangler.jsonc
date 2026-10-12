@@ -2,6 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "everygithub-gold",
   "main": ".open-next/worker.js",
+  // 대시보드에서 입력한 변수(Text)를 wrangler deploy 가 지우지 않도록 (Secret 은 원래 유지됨)
+  "keep_vars": true,
   "compatibility_date": "2025-09-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
