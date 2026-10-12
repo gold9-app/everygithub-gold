@@ -16,6 +16,7 @@ const FEATURES = [
 
 export default async function Landing() {
   if (await currentUser()) redirect("/app");
+  const sbPublic = { supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "" };
   return (
     <div className="min-h-screen">
       <header className="max-w-[1080px] mx-auto px-6 h-16 flex items-center justify-between">
@@ -23,7 +24,7 @@ export default async function Landing() {
           <span className="w-6 h-6 rounded-md bg-gold text-black font-black text-[13px] flex items-center justify-center">eg</span>
           everygithub<span className="text-gold">_gold</span>
         </div>
-        <LoginButton small />
+        <LoginButton small {...sbPublic} />
       </header>
 
       <section className="max-w-[1080px] mx-auto px-6 pt-20 pb-16 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
@@ -36,7 +37,7 @@ export default async function Landing() {
             링크를 던지면 클론하고, 분석하고, 한국어 설명서를 만들고, 클로드코드에 등록합니다. 서버는 명령만 전달하고 실행은 내 PC 에서 — 토큰과 코드는 밖으로 나가지 않습니다.
           </p>
           <div className="mt-8 flex items-center gap-3">
-            <LoginButton />
+            <LoginButton {...sbPublic} />
             <span className="text-sm text-mute">무료 · 1분 설치 · Windows</span>
           </div>
         </div>
@@ -72,7 +73,7 @@ export default async function Landing() {
         <div className="max-w-[1080px] mx-auto px-6 py-16 text-center">
           <h2 className="text-2xl font-bold">설치는 파일 하나 실행이 전부</h2>
           <p className="text-fg-2 mt-2">GitHub 로그인 → 연결 파일 다운로드 → 실행. 코드 입력도, 터미널도 없습니다.</p>
-          <div className="mt-6 inline-flex"><LoginButton /></div>
+          <div className="mt-6 inline-flex"><LoginButton {...sbPublic} /></div>
         </div>
       </section>
       <footer className="border-t border-line text-xs text-mute text-center py-6">everygithub_gold · 배포자가 한 번 올리면 누구나 쓰는 오픈 셀프호스팅 서비스</footer>

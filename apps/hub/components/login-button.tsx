@@ -3,9 +3,10 @@ import { createBrowserClient } from "@supabase/ssr";
 
 import clsx from "clsx";
 
-export function LoginButton({ small }: { small?: boolean }) {
+/** 서버 컴포넌트가 Supabase 공개 설정을 props 로 넘긴다 — 빌드 시 변수 주입(NEXT_PUBLIC_ 인라인)에 의존하지 않도록 (Cloudflare 런타임 변수만으로 동작) */
+export function LoginButton({ small, supabaseUrl, anonKey }: { small?: boolean; supabaseUrl: string; anonKey: string }) {
   const login = async () => {
-    const sb = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+    const sb = createBrowserClient(supabaseUrl, anonKey);
     await sb.auth.signInWithOAuth({ provider: "github", options: { redirectTo: `${location.origin}/auth/callback` } });
   };
   return (
