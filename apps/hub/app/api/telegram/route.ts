@@ -1,4 +1,4 @@
-import { webhookCallback } from "grammy";
+import { webhookCallback } from "grammy/web";
 import { getBot } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";

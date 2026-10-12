@@ -1,4 +1,4 @@
-import { Bot, InlineKeyboard } from "grammy";
+import { Bot, InlineKeyboard } from "grammy/web";
 import { extractGithubUrl, type Pipeline } from "@everygithub/protocol";
 import { supabaseAdmin } from "./supabase";
 import { createJob } from "./jobs";
